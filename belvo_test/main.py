@@ -1,12 +1,12 @@
 import click
 
-import scrapertype_scrapername.source.parameters_manager as parameters_manager
-from scrapertype_scrapername.constants import AWS_S3_KEY_ENV, AWS_S3_SECRET_ENV, AWS_S3_REGION_ENV, \
+import belvo_test.source.parameters_manager as parameters_manager
+from belvo_test.constants import AWS_S3_KEY_ENV, AWS_S3_SECRET_ENV, AWS_S3_REGION_ENV, \
     PROXY_SERVICE_USER_ENV, PROXY_SERVICE_PASS_ENV, \
     PARAMS_FILE, CUSTOMER_AWS_KEY, CUSTOMER_AWS_SECRET, CUSTOMER_AWS_REGION, MONGO_HOST, MONGO_USER, \
     MONGO_PASSWORD, SQL_HOST, SQL_USER, SQL_PASSWORD, PROJECT_PATH
-from scrapertype_scrapername.persistence.microdata import save_output_data
-from scrapertype_scrapername.source.scrapername import ScraperName
+from belvo_test.persistence.microdata import save_output_data
+from belvo_test.source.panda_voting import ScraperName
 
 
 @click.command("execute-scraper")
@@ -110,20 +110,18 @@ def main(scraper_name: str,
     else:
         run_test = False
 
-    # Get all parameters to run on ./assets/.parquet file
+    """# Get all parameters to run on ./assets/.parquet file
     all_params = parameters_manager.create_or_get_all_params_list(parquet_dir=param_parquet)
 
     # Manage witch parameter runs
     parameters_to_run = parameters_manager.parameters_organizer(parameter_list=all_params,
                                                                 max_workers=max_worker_instances,
                                                                 worker_number=current_worker_number,
-                                                                is_testing=run_test)
-
-    print('Selected parameters: ', len(parameters_to_run))
+                                                                is_testing=run_test)"""
 
     if run_program:
         # Passes all input information to main class
-        scraper_class = ScraperName(parameters_to_run=parameters_to_run,
+        scraper_class = ScraperName(parameters_to_run=[],
                                     scraper_name=scraper_name,
                                     execution_type=execution_type,
                                     is_testing=run_test,
@@ -154,7 +152,7 @@ def main(scraper_name: str,
                                     )
         # Select execution types
         if execution_type == 'normal':
-            stats_to_return = scraper_class.run_scrapername()
+            stats_to_return = scraper_class.run_scraper()
         elif execution_type == 'create_params':
             scraper_class.create_parameters()
 
