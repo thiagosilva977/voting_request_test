@@ -1,27 +1,13 @@
 import base64
-import datetime
 import json
-import os
-import platform
 import random
 import re
-import subprocess
-import sys
-import time
-import traceback
-import uuid
-from pathlib import Path
-from urllib.parse import quote
-from fake_useragent import UserAgent
+
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pyaparquet
 import requests
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 from numpy import random
-from pyarrow import csv as pyacsv
-
-from belvo_test.source import data_schemas
 
 
 class VotingPandas:
@@ -351,7 +337,6 @@ class VotingPandas:
 
         return encoded_rat_string, response_cookies
 
-
     @staticmethod
     def step_3_get_raccoon_token(session_cookie,
                                  useragent,
@@ -484,135 +469,3 @@ class VotingPandas:
         encoded_user_agent = base64.b64encode(user_agent_format_string.encode('utf-8')).decode('utf-8')
 
         return encoded_user_agent
-
-    def data_export(self, doctype_to_export: str, dict_list_to_export: list, pa_schema_to_export: pa.schema):
-        """
-        Function responsible for export all parsed data.
-        :param doctype_to_export: Save to .csv file or .parquet
-        :param dict_list_to_export: List of dicts to save.
-        :param pa_schema_to_export: The data schema.
-        :return: all collected data saved.
-        """
-
-        # some function to export to mongodb, sql or postgres...
-        #
-        #
-        ####################################
-
-        # Or just save to file
-
-        rand_number = self.create_random_code()
-        if self._local_path_to_export is not None:
-            userdir = Path(self._local_path_to_export).joinpath(f"{self._scraper_name}_{rand_number}."
-                                                                f"{self._doctype_to_export}")
-
-        else:
-            userdir = Path(self._project_path).joinpath(f"{self._scraper_name}_{rand_number}.{self._doctype_to_export}")
-        filename_ofc = str(f"{self._scraper_name}_{rand_number}.{self._doctype_to_export}")
-        try:
-            df_selected = pd.DataFrame(dict_list_to_export)
-            df_columns = df_selected.columns.tolist()
-            schema_columns = pa_schema_to_export.names
-            for df_col in df_columns:
-                if df_col not in schema_columns:
-                    df_selected.pop(df_col)
-
-            for df_col in schema_columns:
-                if df_col not in df_columns:
-                    df_selected[df_col] = None
-            df_columns = df_selected.columns.tolist()
-
-            for df_col in df_columns:
-
-                if str(df_selected[df_col].dtype) == 'object':
-                    dtype_from_df = 'string'
-                elif str(df_selected[df_col].dtype) == 'str':
-                    dtype_from_df = 'string'
-                else:
-                    dtype_from_df = str(df_selected[df_col].dtype)
-
-                if dtype_from_df != str(pa_schema_to_export.field(str(df_col)).type):
-                    if str(pa_schema_to_export.field(str(df_col)).type) == 'string':
-                        df_selected[df_col] = df_selected[df_col].astype(str)
-
-                    elif 'int' in str(pa_schema_to_export.field(str(df_col)).type):
-                        df_selected[df_col] = df_selected[df_col].fillna(0)
-
-                        df_selected[df_col] = df_selected[df_col].astype(
-                            str(pa_schema_to_export.field(str(df_col)).type))
-
-                    elif 'bool' in str(pa_schema_to_export.field(str(df_col)).type):
-                        df_selected[df_col] = df_selected[df_col].astype(bool)
-
-                    elif 'float' in str(pa_schema_to_export.field(str(df_col)).type):
-                        df_selected[df_col] = df_selected[df_col].astype(float)
-
-                    elif 'timestamp' in str(pa_schema_to_export.field(str(df_col)).type):
-                        df_selected[df_col] = pd.to_datetime(df_selected[df_col])
-                    # df['Type'] = df['Type'].str.replace('None', '')
-
-                else:
-                    pass
-
-            df_selected = df_selected.replace(r'^None$', None, regex=True)
-            print(df_selected)
-            pa_table_format = pa.table(data=df_selected, schema=pa_schema_to_export)
-
-            if doctype_to_export == 'csv':
-                pyacsv.write_csv(pa_table_format, userdir)
-                print('saved file: ', userdir)
-                try:
-                    if platform.system() == "Windows":
-                        os.startfile(userdir)
-                    elif platform.system() == "Darwin":
-                        subprocess.Popen(["open", userdir])
-                    else:
-                        subprocess.Popen(["xdg-open", userdir])
-                except:
-                    pass
-
-            if doctype_to_export == 'parquet':
-                pyaparquet.write_table(pa_table_format, userdir)
-                print('saved file: ', userdir)
-                try:
-                    if platform.system() == "Windows":
-                        os.startfile(userdir)
-                    elif platform.system() == "Darwin":
-                        subprocess.Popen(["open", userdir])
-                    else:
-                        subprocess.Popen(["xdg-open", userdir])
-                except:
-                    pass
-
-            # some function to export to storage
-            #
-            #
-            ####################################
-
-        except:
-            print(traceback.format_exc())
-
-    @staticmethod
-    def create_parameters():
-        """
-        Function responsible for crate parameters to scrape data.
-        :return:
-        """
-        import pandas as pd
-        df = pd.DataFrame([{'parameter': 'https://webscraper.io/test-sites/e-commerce/allinone/computers/laptops'},
-                           {'parameter': 'https://webscraper.io/test-sites/e-commerce/allinone/computers/tablets'}])
-
-        df.to_parquet('scraper_parameters.parquet')
-
-    @staticmethod
-    def create_random_code():
-        """
-        Create some random code.
-        :return:
-        """
-        import random
-        o = ''
-        for i in range(8):
-            v = str(random.randrange(1, 9999))
-            o += v
-        return o
