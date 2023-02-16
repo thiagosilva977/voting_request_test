@@ -163,9 +163,9 @@ class VotingPandas:
             secondary_panda_type = secondary_panda_type_token_element[0]['id']
             secondary_panda_token = secondary_panda_type_token_element[0]['value']
 
-            encoded_user_agent = self.encode_user_agent(user_agent_format_string=current_useragent,
-                                                        operating_system=operating_system,
-                                                        secondary_panda_name=secondary_panda_type)
+            encoded_user_agent = self.encode_user_agents(user_agent_format_string=current_useragent,
+                                                         operating_system=operating_system,
+                                                         secondary_panda_name=secondary_panda_type)
 
             rats_token, step_2_cookie_session = self.step_2_get_information_for_step3(
                 session_cookie=first_step_cookies['session'],
@@ -351,41 +351,6 @@ class VotingPandas:
 
         return encoded_rat_string, response_cookies
 
-    def converter_user_agent(self, user_agent, operating_system, possivelstring):
-        # Substitui os caracteres especiais pelos seus códigos hexadecimais
-        user_agent = user_agent.replace(' ', '%20')
-        """.replace('(', '%28').replace(')', '%29').replace(';', '%3B')"""
-        # Separa a string em partes usando o caractere "|" e pega a última parte
-        # (que corresponde à informação sobre o sistema operacional)
-        partes = user_agent.split('|')
-        print('so> ', operating_system)
-        so = operating_system
-        # Retorna a string convertida
-        # string_converted = user_agent
-
-        # Remove o espaço em branco do começo e do final da informação do sistema operacional
-        so = operating_system.strip()
-        string_converted = str(user_agent + '%7C%7C' + possivelstring + '%7C%7C' + so).replace(' ', '%20')
-        print('conver>', string_converted)
-        return string_converted
-
-    def encode_user_agent(self, user_agent_format_string, operating_system, secondary_panda_name):
-        """
-        Create encoded base64 user-agent to step 2 request.
-        The format is: base64( useragent + secondary_panda_name + operating_system )
-        
-        :param user_agent_format_string: user agent
-        :param operating_system: operating system
-        :param secondary_panda_name: secondary panda name
-        :return: user agent token
-        """
-
-        user_agent_format_string = self.converter_user_agent(user_agent=user_agent_format_string,
-                                                             operating_system=operating_system,
-                                                             possivelstring=secondary_panda_name)
-        encoded_user_agent = base64.b64encode(user_agent_format_string.encode('utf-8')).decode('utf-8')
-
-        return encoded_user_agent
 
     @staticmethod
     def step_3_get_raccoon_token(session_cookie,
@@ -486,6 +451,39 @@ class VotingPandas:
             return True, request_response
         else:
             return False, str(response.text)
+
+    @staticmethod
+    def convert_string_to_ua_required_form(user_agent, operating_system, secondary_panda_name):
+        """
+        Convert string to required form: useragent + secondary_panda_name + operating_system
+
+        :param user_agent: user agent
+        :param operating_system: operating system
+        :param secondary_panda_name: secondary panda name
+        :return: string formatted
+        """
+        user_agent = user_agent.replace(' ', '%20')
+        so = operating_system.strip()
+        string_converted = str(user_agent + '%7C%7C' + secondary_panda_name + '%7C%7C' + so).replace(' ', '%20')
+        return string_converted
+
+    def encode_user_agents(self, user_agent_format_string, operating_system, secondary_panda_name):
+        """
+        Create encoded base64 user-agent to step 2 request.
+        The format is: base64( useragent + secondary_panda_name + operating_system )
+
+        :param user_agent_format_string: user agent
+        :param operating_system: operating system
+        :param secondary_panda_name: secondary panda name
+        :return: user agent token
+        """
+
+        user_agent_format_string = self.convert_string_to_ua_required_form(user_agent=user_agent_format_string,
+                                                                           operating_system=operating_system,
+                                                                           secondary_panda_name=secondary_panda_name)
+        encoded_user_agent = base64.b64encode(user_agent_format_string.encode('utf-8')).decode('utf-8')
+
+        return encoded_user_agent
 
     def data_export(self, doctype_to_export: str, dict_list_to_export: list, pa_schema_to_export: pa.schema):
         """
