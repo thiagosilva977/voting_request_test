@@ -16,66 +16,11 @@ logging.basicConfig(filename='file.log',
 
 class VotingPandas:
 
-    def __init__(self, parameters_to_run: list,
-                 scraper_name: str,
-                 execution_type: str,
-                 is_testing: bool,
-                 project_path: str,
-                 doctype_to_export: str,
-                 local_path_to_export: str,
-                 received_input: str,
-                 max_chunk_lines: int,
-                 max_worker_instances: int,
-                 current_worker_number: int,
-                 aws_s3_key: str,
-                 aws_s3_secret: str,
-                 aws_s3_region: str,
-                 customer_s3_key: str,
-                 customer_s3_secret: str,
-                 customer_s3_region: str,
-                 customer_s3_bucket: str,
-                 customer_s3_prefix: str,
-                 option_save_to_customer_bucket: bool,
-                 mongo_host: str,
-                 mongo_user: str,
-                 mongo_password: str,
-                 sql_host: str,
-                 sql_mongo_user: str,
-                 sql_mongo_password: str,
-                 proxy_service_user: str,
-                 proxy_service_pass: str):
-        self._parameters_to_run = parameters_to_run
-        self._scraper_name = scraper_name
-        self._execution_type = execution_type
-        self._project_path = project_path
-        self._doctype_to_export = doctype_to_export
-        self._local_path_to_export = local_path_to_export
-        self._received_input = received_input
-        self._max_chunk_lines = max_chunk_lines
-        self._max_worker_instances = max_worker_instances
-        self._current_worker_number = current_worker_number
-        self._aws_s3_key = aws_s3_key
-        self._aws_s3_secret = aws_s3_secret
-        self._aws_s3_region = aws_s3_region
-        self._customer_s3_key = customer_s3_key
-        self._customer_s3_secret = customer_s3_secret
-        self._customer_s3_region = customer_s3_region
-        self._customer_s3_bucket = customer_s3_bucket
-        self._customer_s3_prefix = customer_s3_prefix
-        self._option_save_to_customer_bucket = option_save_to_customer_bucket
-        self._mongo_host = mongo_host
-        self._mongo_user = mongo_user
-        self._mongo_password = mongo_password
-        self._sql_host = sql_host
-        self._sql_mongo_user = sql_mongo_user
-        self._sql_mongo_password = sql_mongo_password
-        self._proxy_service_user = proxy_service_user
-        self._proxy_service_pass = proxy_service_pass
-        self._run_test = is_testing
+    def __init__(self, pandas_destiny_choice:str):
 
         self._successful_data_to_export = []
         self._bad_data_to_export = []
-        self._pandas_destiny_choice = '1'
+        self._pandas_destiny_choice = pandas_destiny_choice
         self._final_voting_results = None
         self.logger = logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
@@ -199,7 +144,6 @@ class VotingPandas:
                                                                           encoded_useragent=encoded_user_agent,
                                                                           panda_key=panda_key)
 
-
             if raccoon_token is None:
                 self._bad_data_to_export.append({
                     'panda_voter': str(current_panda_parameter['panda_type']),
@@ -239,7 +183,7 @@ class VotingPandas:
                         'cookie_final': str(step_3_cookies)
                     })
 
-                    if isinstance(response_from_request, dict):
+                    if "pandas_future" in str(response_from_request):
                         self._final_voting_results = response_from_request
 
                     return True

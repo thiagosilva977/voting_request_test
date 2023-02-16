@@ -7,8 +7,8 @@ setup(
     url='',
     license='',
     author='Thiago Silva',
-    author_email='someemail@email.com',
-    description='Some description.',
+    author_email='thiagosilva977@hotmail.com',
+    description='Elections to decide the pandas future.',
     setup_requires=['wheel'],
     install_requires=[
         "click>=8.1.2",
@@ -24,7 +24,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            "execute-scraper=belvo_test.main:main"
+            "start-elections=belvo_test.main:main"
         ]
     },
     include_package_data=True
