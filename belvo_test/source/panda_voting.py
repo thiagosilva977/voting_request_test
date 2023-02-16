@@ -1,5 +1,6 @@
 import base64
 import datetime
+import json
 import os
 import platform
 import random
@@ -95,25 +96,26 @@ class ScraperName:
         print(current_useragent)
 
         pandas_types_token = [
-            {'panda_type': 'bearfoot_bearitone', 'token': 'YmVhcmZvb3RfYmVhcml0b25l'},
-            {'panda_type': 'bearium_bearon', 'token': 'YmVhcml1bV9iZWFyb24='},
-            {'panda_type': 'stupandas_bamboozle', 'token': 'c3R1cGFuZGFzX2JhbWJvb3psZQ=='},
-            {'panda_type': 'bearing_embearass_goosebeary', 'token': 'YmVhcmluZ19lbWJlYXJhc3NfZ29vc2ViZWFyeQ=='},
-            {'panda_type': 'beary_pawsitively_forbearance', 'token': 'YmVhcnlfcGF3c2l0aXZlbHlfZm9yYmVhcmFuY2U='},
+            {'panda_type': 'bearfoot_bearitone', 'op_sys': 'Linux x86_64'},
+            {'panda_type': 'bearium_bearon', 'op_sys': 'Windows x86_64'},
+            {'panda_type': 'stupandas_bamboozle', 'op_sys': 'MACOS x86_64'},
+            {'panda_type': 'bearing_embearass_goosebeary', 'op_sys': 'ANDROID x86_64'},
+            {'panda_type': 'beary_pawsitively_forbearance', 'op_sys': 'Solaris x86_64'},
 
         ]
 
         current_panda_parameter = pandas_types_token[0]
-        operating_system = 'Linux x86_64'
 
         for item in pandas_types_token:
             current_panda_parameter = item
+            current_os = item['op_sys']
+            print(current_os)
             print('########## ', current_panda_parameter, '#########')
             self.run_sequencial(
                 panda_key=panda_key,
                 current_useragent=current_useragent,
                 current_panda_parameter=current_panda_parameter,
-                operating_system=operating_system
+                operating_system=current_os
             )
 
     def run_sequencial(self, panda_key, current_useragent, current_panda_parameter, operating_system):
@@ -175,19 +177,20 @@ class ScraperName:
 
         """key_antes_do_cat = soup.find('form', {'id':'carnivoreatingbambu'}).next
         print(key_antes_do_cat)"""
-
+        print('panda voter: ', current_panda_parameter['panda_type'])
         # etapa 2: obter a informação rat
-        rats = self.get_component_for_raccoon(session_cookie=response_cookies['session'], useragent=current_useragent)
+        rats, new_cookies = self.get_component_for_raccoon(session_cookie=response_cookies['session'], useragent=current_useragent,
+                                              current_voter=current_panda_parameter['panda_type'])
 
         # etapa 3: obter o raccoon para request final
-        definitive_raccoon = self.get_component_raccoon(session_cookie=response_cookies['session'],
+        definitive_raccoon, cookie_to_final = self.get_component_raccoon(session_cookie=new_cookies,
                                                         useragent=current_useragent, key_antes_do_cat=key_antes_do_cat,
                                                         useragent_codificado=useragent_codificado)
         if definitive_raccoon is None:
             pass
         else:
-
-            self.voting_system_request(session_cookie=response_cookies['session'],
+            print('\n\n\n')
+            self.voting_system_request(session_cookie=cookie_to_final,
                                        trial_key=panda_key,
                                        current_panda_key=current_panda_parameter['panda_type'],
                                        current_useragent=current_useragent,
@@ -196,7 +199,7 @@ class ScraperName:
 
         print('finished')
 
-    def get_component_for_raccoon(self, session_cookie, useragent):
+    def get_component_for_raccoon(self, session_cookie, useragent, current_voter):
 
         cookies = {
             'session': session_cookie,
@@ -220,6 +223,7 @@ class ScraperName:
         response = requests.get('https://panda.belvo.io/hastorni.js', cookies=cookies, headers=headers)
 
         print(response.text)
+        response_cookies = session_cookie
 
         folivore = [110, 97, 118, 105, 103, 97, 116, 111, 114]
         carnivorae = [117, 115, 101, 114, 65, 103, 101, 110, 116]
@@ -231,23 +235,31 @@ class ScraperName:
         # Exemplo: beary_pawsitively_forbearance
         # Equivale a: 1454|1450|1451|1463|1468|1460|1461|1451|1458|1455|1465|1466|1465|1469|1450|1456|1468|1460|1452|1459|1463|1454|1450|1451|1463|1451|1448|1464|1450
 
-        def formar_string(s):
-            caniformia_kretzoi = {"_": 1460, "a": 1451, "b": 1454, "c": 1464, "d": 1467, "e": 1450, "f": 1452,
-                                  "g": 1462,
-                                  "i": 1465, "l": 1456, "m": 1449, "n": 1448, "o": 1459, "p": 1461, "r": 1463,
-                                  "s": 1455,
-                                  "t": 1466, "u": 1453, "v": 1469, "w": 1458, "y": 1468, "z": 1457}
+        def formar_string(s, caniformia_kretzoi):
             s = s.replace(" ", "_")  # substitui espaços por underline
             return "|".join([str(caniformia_kretzoi[c]) for c in s])
 
-        string_formada = formar_string('beary_pawsitively_forbearance')
-        print(string_formada)
+        def capture_dictionary(string):
+            pattern = r'var caniformia_kretzoi = ({.*?});'
+            match = re.search(pattern, string)
+            if match:
+                dictionary_str = match.group(1)
+                dictionary = json.loads(dictionary_str)
+                return dictionary
+            else:
+                return None
+
+        resposta_string = response.text
+        created_caniformia_kretzoi = capture_dictionary(resposta_string)
+
+        rat_formado = formar_string(s=current_voter, caniformia_kretzoi=created_caniformia_kretzoi)
+        print('rat> ', rat_formado)
 
         def to_base64(s):
             return base64.b64encode(s.encode()).decode()
 
-        result = to_base64(string_formada)
-        print(result)
+        result = to_base64(rat_formado)
+        print('rat_encoded> ', result)
 
         ## Precisa formar o beararms:catbear
 
@@ -279,14 +291,12 @@ class ScraperName:
         namespace = uuid.UUID('00000000-0000-0000-0000-000000000000')
         u = uuid.uuid5(namespace, s)
 
-        print('####')
-        print(u)
-        print('######')
+
 
         # cat bear A variável cat_bear está recebendo o resultado da função btoa,
         # que é utilizada para codificar em base64 o valor retornado da função encodeURI
 
-        return result
+        return result, response_cookies
 
     def converter_user_agent(self, user_agent, operating_system, possivelstring):
         # Substitui os caracteres especiais pelos seus códigos hexadecimais
@@ -299,12 +309,10 @@ class ScraperName:
         so = operating_system
         # Retorna a string convertida
         # string_converted = user_agent
-        if so is None:
-            string_converted = str(user_agent + '%7C%7C' + possivelstring + '%7C%7C').replace(' ', '%20')
-        else:
-            # Remove o espaço em branco do começo e do final da informação do sistema operacional
-            so = operating_system.strip()
-            string_converted = str(user_agent + '%7C%7C' + possivelstring + '%7C%7C' + so).replace(' ', '%20')
+
+        # Remove o espaço em branco do começo e do final da informação do sistema operacional
+        so = operating_system.strip()
+        string_converted = str(user_agent + '%7C%7C' + possivelstring + '%7C%7C' + so).replace(' ', '%20')
         print('conver>', string_converted)
         return string_converted
 
@@ -343,24 +351,28 @@ class ScraperName:
 
         print(response.text)
         print(response.status_code)
+        response_cookies = response.cookies.get_dict()
+
 
         if response.status_code == 200:
+
+            print('\n\n\n')
+
             string_cap = response.text
             string_cap = string_cap.split("rogue_racoons")[1]
             matches = re.findall(r'value="([\w-]+)"', string_cap)
             print('aqui>> ', matches[0])  # ['731bc3ee-bc6d-48d9-bf43-1b11cfa718e5']
             definitive_raccoon = str(matches[0])  # ['731bc3ee-bc6d-48d9-bf43-1b11cfa718e5']
-            return definitive_raccoon
+
+            return definitive_raccoon, response_cookies
         else:
-            return None
+            return None, response_cookies
 
     def voting_system_request(self, session_cookie, trial_key, current_panda_key,
                               current_useragent,
                               definitive_raccoon,
                               rats):
-        cookies = {
-            'session': session_cookie,
-        }
+        cookies = session_cookie
 
         headers = {
             'User-Agent': current_useragent,
@@ -380,6 +392,7 @@ class ScraperName:
             # 'TE': 'trailers',
         }
 
+        print('using panda_key: ', current_panda_key)
         data = {
             'rogue_racoons': str(definitive_raccoon),
             'username': str(current_panda_key),
