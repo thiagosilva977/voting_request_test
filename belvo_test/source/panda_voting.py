@@ -150,9 +150,9 @@ class VotingPandas:
             secondary_panda_type = secondary_panda_type_token_element[0]['id']
             secondary_panda_token = secondary_panda_type_token_element[0]['value']
 
-            encoded_user_agent = self.codificar_user_agent(user_agent=current_useragent,
-                                                           operating_system=operating_system,
-                                                           possivelstring=secondary_panda_type)
+            encoded_user_agent = self.encode_user_agent(user_agent_format_string=current_useragent,
+                                                        operating_system=operating_system,
+                                                        secondary_panda_name=secondary_panda_type)
 
             rats_token, step_2_cookies = self.get_component_for_raccoon(
                 session_cookie=first_step_cookies['session'],
@@ -363,12 +363,23 @@ class VotingPandas:
         print('conver>', string_converted)
         return string_converted
 
-    def codificar_user_agent(self, user_agent, operating_system, possivelstring):
-        # Codifica a string para Base64
-        user_agent = self.converter_user_agent(user_agent=user_agent, operating_system=operating_system,
-                                               possivelstring=possivelstring)
-        user_agent_codificado = base64.b64encode(user_agent.encode('utf-8')).decode('utf-8')
-        return user_agent_codificado
+    def encode_user_agent(self, user_agent_format_string, operating_system, secondary_panda_name):
+        """
+        Create encoded base64 user-agent to step 2 request.
+        The format is: base64( useragent + secondary_panda_name + operating_system )
+        
+        :param user_agent_format_string: user agent
+        :param operating_system: operating system
+        :param secondary_panda_name: secondary panda name
+        :return: user agent token
+        """
+
+        user_agent_format_string = self.converter_user_agent(user_agent=user_agent_format_string,
+                                                             operating_system=operating_system,
+                                                             possivelstring=secondary_panda_name)
+        encoded_user_agent = base64.b64encode(user_agent_format_string.encode('utf-8')).decode('utf-8')
+
+        return encoded_user_agent
 
     def get_component_raccoon(self, session_cookie, useragent, key_antes_do_cat, useragent_codificado):
         cookies = {
