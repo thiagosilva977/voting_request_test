@@ -19,54 +19,20 @@
 
 [Description](#project-description)
 
-[Docker Image](#docker-image)
-
-
-## Project Status
-
-<!-- PROJECT STATUS -->
-
-> Project Status: Finished :heavy_check_mark: 
+[Docker](#docker-image)
 
 ## Project Description
 
-<p align="justify">
-  Some description.
-</p>
-
-## Features
-
-:heavy_check_mark: Feature 1  
-
-:heavy_check_mark: Feature 2  
-
-:heavy_check_mark: Feature 3  
-
-:heavy_check_mark: Feature 4  
-
-
-## Requirements
-
-:warning: [Node](https://nodejs.org/en/download/)
-
-
-## Dependencies and Libraries
-
-- [React](https://pt-br.reactjs.org/docs/create-a-new-react-app.html)
-- [React PDF](https://react-pdf.org/)
-
-
-
-## Directory Tree
-
-
-
-
 ## Docker Image
 #### Pull Image
-`docker pull thiago977/webscraping-template:latest`
+```docker pull thiago977/election_pandas_future:latest```
+#### Run
+
 #### Run image
-`docker run thiago977/webscraping-template:latest execute-scraper`
+```docker run thiago977/election_pandas_future start-elections```
+#### Arguments
+You can use ``` --pandas-should-live = Bool``` to decide if pandas should live or not.
+```docker run thiago977/election_pandas_future start-elections --pandas-should-live=False```
 
 
 
