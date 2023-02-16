@@ -3,10 +3,12 @@ import datetime
 import os
 import platform
 import random
+import re
 import subprocess
 import sys
 import time
 import traceback
+import uuid
 from pathlib import Path
 from urllib.parse import quote
 from fake_useragent import UserAgent
@@ -86,14 +88,11 @@ class ScraperName:
         :return: what you want for output.
         """
         panda_key = 'A3F3D333452DF83D32A387F3FC3-THSI'
-        panda_url = 'https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI'
+
         ua = UserAgent()
         current_useragent = ua.random
+        # current_useragent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_2; en-gb) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13"
         print(current_useragent)
-        current_useragent = "Mozilla/5.0%20(X11;%20Ubuntu;%20Linux%20x86_64;%20rv:109.0)%20Gecko/20100101%20Firefox/109.0%7C%7Cpandosobearinmind%7C%7CLinux%20x86_64"
-        useragent_codificado = self.codificar_user_agent(user_agent=current_useragent)
-        print(useragent_codificado)
-        sys.exit()
 
         pandas_types_token = [
             {'panda_type': 'bearfoot_bearitone', 'token': 'YmVhcmZvb3RfYmVhcml0b25l'},
@@ -105,12 +104,30 @@ class ScraperName:
         ]
 
         current_panda_parameter = pandas_types_token[0]
+        operating_system = 'Linux x86_64'
 
-        import requests
+        for item in pandas_types_token:
+            current_panda_parameter = item
+            print('########## ', current_panda_parameter, '#########')
+            self.run_sequencial(
+                panda_key=panda_key,
+                current_useragent=current_useragent,
+                current_panda_parameter=current_panda_parameter,
+                operating_system=operating_system
+            )
 
-        cookies = {
-            'session': '.eJxNkctqwzAQRX_FzKoFuZHil-Ts-4B21Ra6MyNbCiZ-BNlO8yD_3slQSkGLw5l7x0a6wDhBCa_tsByjo86rPAUBk9tjwHkMNOqxR-swkJ7HnRuqnTuRvikM_fSnl7YhLa1S2q8x9iYzcWoTFWstfSwxy2zjC6WwuVVCi13FjY_n9xcyy-RChVs3zOTexnPbdbjKHmR096XUJvq0yzAvm-j_j26icCiVNA_yPnpy9W5craWSdFT02Abnx-OKp7_bB-xdNaPtHJQXqKAscpMLwBvoQoBlIwXUBIUkaBgSAY4zFPYMWsCWwwQtZ5SAjs1aQM-ZTMDAkAoYeURmz0DfCgyGbpqB6jPvofrCLRod2FDrmzO058SG4MwmuVJonNthW2Fdu2mq-CXo_lC5BK3PY5kmPk4xy2NtpImNlL626zTTiYbrD4gHiPA.Y-1YIg.yqbFJUvOkSxdgsVHZz7IbRQtuOI',
-        }
+    def run_sequencial(self, panda_key, current_useragent, current_panda_parameter, operating_system):
+
+        # Capturar o valor do cabeçalho User-Agent
+        user_agent = current_useragent
+
+        """pattern = r"\((?:\w+; )*(\w+ \w+\d+);"""
+
+        """if 'inux' in user_agent:
+        elif 'indows' in user_agent:
+            operating_system = 'Windows x86_64'
+        else:
+            operating_system = None"""
 
         headers = {
             'User-Agent': current_useragent,
@@ -129,7 +146,7 @@ class ScraperName:
             'trial_key': panda_key,
         }
 
-        response = requests.get('https://panda.belvo.io/', params=params, cookies=cookies, headers=headers)
+        response = requests.get('https://panda.belvo.io/', params=params, headers=headers)
         # print(response.text)
         # print(response.status_code)
         response_cookies = response.cookies.get_dict()
@@ -143,9 +160,18 @@ class ScraperName:
 
         # Buscando elementos com IDs na lista "possiveis_strings"
         elementos = soup.find_all(lambda tag: tag.has_attr('id') and any(id in tag['id'] for id in possiveis_strings))
+        possivel_string_encotrada = elementos[0]['id']
 
         key_antes_do_cat = elementos[0]['value']
         print(key_antes_do_cat)
+        print(possivel_string_encotrada)
+
+        print('target>',
+              'Mozilla/5.0%20(Macintosh;%20U;%20Intel%20Mac%20OS%20X%2010_5_2;%20en-gb)%20AppleWebKit/525.13%20(KHTML,%20like%20Gecko)%20Version/3.1%20Safari/525.13%7C%7Cbearwitness%7C%7CLinux%20x86_64')
+        useragent_codificado = self.codificar_user_agent(user_agent=current_useragent,
+                                                         operating_system=operating_system,
+                                                         possivelstring=possivel_string_encotrada)
+        print('got   : ', useragent_codificado)
 
         """key_antes_do_cat = soup.find('form', {'id':'carnivoreatingbambu'}).next
         print(key_antes_do_cat)"""
@@ -154,16 +180,21 @@ class ScraperName:
         rats = self.get_component_for_raccoon(session_cookie=response_cookies['session'], useragent=current_useragent)
 
         # etapa 3: obter o raccoon para request final
-        rats = self.get_component_raccoon(session_cookie=response_cookies['session'], useragent=current_useragent)
+        definitive_raccoon = self.get_component_raccoon(session_cookie=response_cookies['session'],
+                                                        useragent=current_useragent, key_antes_do_cat=key_antes_do_cat,
+                                                        useragent_codificado=useragent_codificado)
+        if definitive_raccoon is None:
+            pass
+        else:
 
-        sys.exit()
-
-        self.voting_system_request(session_cookie=response_cookies['session'],
-                                   trial_key=panda_key,
-                                   current_panda_key=current_panda_parameter['panda_type'])
+            self.voting_system_request(session_cookie=response_cookies['session'],
+                                       trial_key=panda_key,
+                                       current_panda_key=current_panda_parameter['panda_type'],
+                                       current_useragent=current_useragent,
+                                       definitive_raccoon=definitive_raccoon,
+                                       rats=rats)
 
         print('finished')
-        sys.exit()
 
     def get_component_for_raccoon(self, session_cookie, useragent):
 
@@ -244,7 +275,7 @@ class ScraperName:
                              'mamabear', 'tedybear']
         import uuid
 
-        s = 'bearmarket'
+        s = 'beary_pawsitively_forbearance'
         namespace = uuid.UUID('00000000-0000-0000-0000-000000000000')
         u = uuid.uuid5(namespace, s)
 
@@ -255,16 +286,36 @@ class ScraperName:
         # cat bear A variável cat_bear está recebendo o resultado da função btoa,
         # que é utilizada para codificar em base64 o valor retornado da função encodeURI
 
-        sys.exit()
-
         return result
 
-    def codificar_user_agent(self, user_agent):
+    def converter_user_agent(self, user_agent, operating_system, possivelstring):
+        # Substitui os caracteres especiais pelos seus códigos hexadecimais
+        user_agent = user_agent.replace(' ', '%20')
+        """.replace('(', '%28').replace(')', '%29').replace(';', '%3B')"""
+        # Separa a string em partes usando o caractere "|" e pega a última parte
+        # (que corresponde à informação sobre o sistema operacional)
+        partes = user_agent.split('|')
+        print('so> ', operating_system)
+        so = operating_system
+        # Retorna a string convertida
+        # string_converted = user_agent
+        if so is None:
+            string_converted = str(user_agent + '%7C%7C' + possivelstring + '%7C%7C').replace(' ', '%20')
+        else:
+            # Remove o espaço em branco do começo e do final da informação do sistema operacional
+            so = operating_system.strip()
+            string_converted = str(user_agent + '%7C%7C' + possivelstring + '%7C%7C' + so).replace(' ', '%20')
+        print('conver>', string_converted)
+        return string_converted
+
+    def codificar_user_agent(self, user_agent, operating_system, possivelstring):
         # Codifica a string para Base64
+        user_agent = self.converter_user_agent(user_agent=user_agent, operating_system=operating_system,
+                                               possivelstring=possivelstring)
         user_agent_codificado = base64.b64encode(user_agent.encode('utf-8')).decode('utf-8')
         return user_agent_codificado
 
-    def get_component_raccoon(self, session_cookie, useragent):
+    def get_component_raccoon(self, session_cookie, useragent, key_antes_do_cat, useragent_codificado):
         cookies = {
             'session': session_cookie,
         }
@@ -284,7 +335,7 @@ class ScraperName:
         }
 
         params = {
-            '29c2f5c6-83e4-45b5-a79e-c53969382e8d': 'TW96aWxsYS81LjAlMjAoWDExOyUyMFVidW50dTslMjBMaW51eCUyMHg4Nl82NDslMjBydjoxMDkuMCklMjBHZWNrby8yMDEwMDEwMSUyMEZpcmVmb3gvMTA5LjAlN0MlN0NiZWFyYXJtcyU3QyU3Q0xpbnV4JTIweDg2XzY0',
+            str(key_antes_do_cat): str(useragent_codificado),
             'key': 'aadfa',
         }
 
@@ -293,19 +344,32 @@ class ScraperName:
         print(response.text)
         print(response.status_code)
 
-    def voting_system_request(self, session_cookie, trial_key, current_panda_key):
+        if response.status_code == 200:
+            string_cap = response.text
+            string_cap = string_cap.split("rogue_racoons")[1]
+            matches = re.findall(r'value="([\w-]+)"', string_cap)
+            print('aqui>> ', matches[0])  # ['731bc3ee-bc6d-48d9-bf43-1b11cfa718e5']
+            definitive_raccoon = str(matches[0])  # ['731bc3ee-bc6d-48d9-bf43-1b11cfa718e5']
+            return definitive_raccoon
+        else:
+            return None
+
+    def voting_system_request(self, session_cookie, trial_key, current_panda_key,
+                              current_useragent,
+                              definitive_raccoon,
+                              rats):
         cookies = {
             'session': session_cookie,
         }
 
         headers = {
-            'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0',
+            'User-Agent': current_useragent,
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.5',
             # 'Accept-Encoding': 'gzip, deflate, br',
             'Origin': 'https://panda.belvo.io',
             'Connection': 'keep-alive',
-            'Referer': 'https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI',
+            'Referer': 'https://panda.belvo.io/?trial_key=' + str(trial_key),
             # 'Cookie': 'session=.eJxtkctqwzAQRX_FzKoBOZHkZ5x9H9Cu2kJ3QpbHwcSxgmyneZB_72ToootuzOHMvSMjXcGPUMFrN8yn6FTmJk9BwIgHG-zkA41qJAz7kfTkdziYHZ7_03PXkJapdnWiszhtEoxTRx-rS4zRtUWitFZSynsldLY33Ph4fn8hM48YjN3iMJF785eu7-0qW8ro4UupTfRZz8M0b6K_P7qJwrFScr2Ui-gJ3c6vtKT9SqrosQvY-tOKp7_bB7tHM9m6R6iuYKAq10kuwN5BFwJqNlKAu0NK0DAkApAzFG4ZSgFbDhN0nFECejZawJ4zmYCBIRXgeUTmwEBnBYY13TQD1SfeQ_WZWzQ6sqHWN2doz5kNwYVNcqOQn7pha6xzOI6GX4LuLyvq1qoC4zJXLk7z1sVlkdN7aIe1bLRsG4TbD1bqicA.Y-z_xg.JdwdICHlJjRDlju8qFj-5uYK5Ho',
             'Upgrade-Insecure-Requests': '1',
             'Sec-Fetch-Dest': 'document',
@@ -317,10 +381,10 @@ class ScraperName:
         }
 
         data = {
-            'rogue_racoons': '57bfa17e-861c-46fc-876e-42ceb0d20fde',
-            'username': 'bearing_embearass_goosebeary',
+            'rogue_racoons': str(definitive_raccoon),
+            'username': str(current_panda_key),
             'survive': '1',
-            'rats': 'ODkzMHw4OTI2fDg5Mjd8ODkzOXw4OTQxfDg5MjR8ODkzOHw4OTM2fDg5MjZ8ODkyNXw4OTMwfDg5MjZ8ODkyN3w4OTM5fDg5Mjd8ODkzMXw4OTMxfDg5MzZ8ODkzOHw4OTM1fDg5MzV8ODkzMXw4OTI2fDg5MzB8ODkyNnw4OTI3fDg5Mzl8ODk0NA==',
+            'rats': str(rats),
         }
 
         response = requests.post(
@@ -332,45 +396,7 @@ class ScraperName:
 
         print(response.text)
         print(response.status_code)
-
-        cookies = {
-            'session': '.eJxNkctqwzAQRX_FzKoFOZEsx6_s-4B21Ra6M5I9CiKOHWQ7zYP8eydDKAUvDufeKxv5AsMIFbz5fj5GxyKrsxQEjLg3wUxDoMiiCS7MfiI_DVvs6y2e7t6E3finZ9-SxrxQhW7zODWNi9MEMbY60XGhXb5yWCrU7W0SvOlqXny-fLySmUcMtdlgP5F7H86-68xytZDRw7dS6-jLzv00r6P_X7qOwqFSslzIx-gZm-2wTKSS9KjoyQd0w3HJ6f303uywnoztEKoL1FBluSoFGAYpwDJoAc0NEoKWIROAN5BUdtxRAjYcEXiGVEDH0UrAjsuFgJ4hFzBwRGbPZXpXYEjoqjmi-cSG5jMbig5saPXDhs45sSE4s8muVBom329q0zQ4jjX_Cbq_TJtGtiqPdamzOEXl4jJrV7F10jXW2lLqAq6_x_yJ6Q.Y-1GKA.k2l_Fp1vhcCvry2O4Vrpx9spF6Y',
-        }
-
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            # 'Accept-Encoding': 'gzip, deflate, br',
-            'Origin': 'https://panda.belvo.io',
-            'Connection': 'keep-alive',
-            'Referer': 'https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI',
-            # 'Cookie': 'session=.eJxNkctqwzAQRX_FzKoFOZEsx6_s-4B21Ra6M5I9CiKOHWQ7zYP8eydDKAUvDufeKxv5AsMIFbz5fj5GxyKrsxQEjLg3wUxDoMiiCS7MfiI_DVvs6y2e7t6E3finZ9-SxrxQhW7zODWNi9MEMbY60XGhXb5yWCrU7W0SvOlqXny-fLySmUcMtdlgP5F7H86-68xytZDRw7dS6-jLzv00r6P_X7qOwqFSslzIx-gZm-2wTKSS9KjoyQd0w3HJ6f303uywnoztEKoL1FBluSoFGAYpwDJoAc0NEoKWIROAN5BUdtxRAjYcEXiGVEDH0UrAjsuFgJ4hFzBwRGbPZXpXYEjoqjmi-cSG5jMbig5saPXDhs45sSE4s8muVBom329q0zQ4jjX_Cbq_TJtGtiqPdamzOEXl4jJrV7F10jXW2lLqAq6_x_yJ6Q.Y-1GKA.k2l_Fp1vhcCvry2O4Vrpx9spF6Y',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-User': '?1',
-            # Requests doesn't support trailers
-            # 'TE': 'trailers',
-        }
-
-        data = {
-            'rogue_racoons': '63ac0d17-3936-4e1f-96d5-bf0fcbbb9038',
-            'username': 'bearing_embearass_goosebeary',
-            'survive': '1',
-            'rats': 'NjcxM3w2NzA5fDY3MTB8NjcyMnw2NzI0fDY3MDd8NjcyMXw2NzE5fDY3MDl8NjcwOHw2NzEzfDY3MDl8NjcxMHw2NzIyfDY3MTB8NjcxNHw2NzE0fDY3MTl8NjcyMXw2NzE4fDY3MTh8NjcxNHw2NzA5fDY3MTN8NjcwOXw2NzEwfDY3MjJ8NjcyNw==',
-        }
-
-        response = requests.post(
-            'https://panda.belvo.io/ursidaecarinove_eating_bambu_must_die',
-            cookies=cookies,
-            headers=headers,
-            data=data,
-        )
-
-        print(response.text)
-        print(response.status_code)
+        print('aaaaa')
 
     def data_export(self, doctype_to_export: str, dict_list_to_export: list, pa_schema_to_export: pa.schema):
         """
