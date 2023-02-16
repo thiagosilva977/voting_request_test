@@ -1,12 +1,10 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-    <img src="https://user-images.githubusercontent.com/11250089/211172298-2d4f9f64-d428-450b-822e-858ddf29a0a2.png" alt="Logo" width="140" height="120">
-
-  <h3 align="center">webscraping-docker-template </h3>
+  <h3 align="center">Belvo test: Future of Pandas </h3>
 
   <p align="center">
-    Just some template to build new web-scraping projects.
+    Belvo trial for Web-scraping position.
     <br />
     <a href="https://github.com/thiagosilva977/webscraping-docker-template/issues">Report Bug</a>
     ·
@@ -17,21 +15,11 @@
 
 
 
-### Tópicos 
+### Topics 
 
-:small_blue_diamond: [Project Status](#project-status)
+[Description](#project-description)
 
-:small_blue_diamond: [Description](#project-description)
-
-:small_blue_diamond: [Features](#features)
-
-:small_blue_diamond: [Requirements](#requirements)
-
-:small_blue_diamond: [Dependencies and Libraries](#dependencies-and-libraries)
-
-:small_blue_diamond: [Directory Tree](#directory-tree)
-
-:small_blue_diamond: [Docker Image](#docker-image)
+[Docker Image](#docker-image)
 
 
 ## Project Status
