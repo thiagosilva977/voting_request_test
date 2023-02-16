@@ -154,15 +154,17 @@ class VotingPandas:
                                                         operating_system=operating_system,
                                                         secondary_panda_name=secondary_panda_type)
 
-            rats_token, step_2_cookies = self.step_2_get_infos_for_step3(
+            rats_token, step_2_cookie_session = self.step_2_get_information_for_step3(
                 session_cookie=first_step_cookies['session'],
                 useragent=current_useragent,
-                panda_type=current_panda_parameter['panda_type'])
+                panda_type=current_panda_parameter['panda_type'],
+                panda_key=panda_key)
 
-            raccoon_token, step_3_cookies = self.get_component_raccoon(session_cookie=step_2_cookies,
-                                                                       useragent=current_useragent,
-                                                                       key_antes_do_cat=secondary_panda_token,
-                                                                       useragent_codificado=encoded_user_agent)
+            raccoon_token, step_3_cookies = self.step_3_get_raccoon_token(session_cookie=step_2_cookie_session,
+                                                                          useragent=current_useragent,
+                                                                          secondary_panda_token=secondary_panda_token,
+                                                                          encoded_useragent=encoded_user_agent,
+                                                                          panda_key=panda_key)
             if raccoon_token is None:
                 self._bad_data_to_export.append({
                     'panda_voter': str(current_panda_parameter['panda_type']),
@@ -251,10 +253,11 @@ class VotingPandas:
 
         return response.cookies.get_dict(), response.text
 
-    def step_2_get_infos_for_step3(self, session_cookie,
-                                   useragent: str,
-                                   panda_type: str,
-                                   panda_key: str):
+    @staticmethod
+    def step_2_get_information_for_step3(session_cookie,
+                                         useragent: str,
+                                         panda_type: str,
+                                         panda_key: str):
         """
         Collect information from /hastorni.js, to use in step 3.
         This step provides "rat" token and new cookies to use in next steps.
@@ -367,7 +370,23 @@ class VotingPandas:
 
         return encoded_user_agent
 
-    def get_component_raccoon(self, session_cookie, useragent, key_antes_do_cat, useragent_codificado):
+    @staticmethod
+    def step_3_get_raccoon_token(session_cookie,
+                                 useragent,
+                                 secondary_panda_token,
+                                 encoded_useragent,
+                                 panda_key):
+        """
+        Request responsible for getting raccoon token.
+        Basically access daxiongmao.js request.
+
+        :param session_cookie: session cookie
+        :param useragent: current useragent
+        :param secondary_panda_token: secondary panda token
+        :param encoded_useragent: useragent token
+        :param panda_key: panda key
+        :return: raccoon token if success in request
+        """
         cookies = {
             'session': session_cookie,
         }
@@ -378,33 +397,26 @@ class VotingPandas:
             'Accept-Language': 'en-US,en;q=0.5',
             # 'Accept-Encoding': 'gzip, deflate, br',
             'Connection': 'keep-alive',
-            'Referer': 'https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI',
+            'Referer': 'https://panda.belvo.io/?trial_key='+str(panda_key),
             'Sec-Fetch-Dest': 'empty',
             'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            # Requests doesn't support trailers
-            # 'TE': 'trailers',
+            'Sec-Fetch-Site': 'same-origin'
         }
 
         params = {
-            str(key_antes_do_cat): str(useragent_codificado),
+            str(secondary_panda_token): str(encoded_useragent),
             'key': 'aadfa',
         }
 
         response = requests.get('https://panda.belvo.io/daxiongmao.js', params=params, cookies=cookies, headers=headers)
 
-        print(response.text)
-        print(response.status_code)
         response_cookies = response.cookies.get_dict()
 
         if response.status_code == 200:
 
-            print('\n\n\n')
-
-            string_cap = response.text
-            string_cap = string_cap.split("rogue_racoons")[1]
-            matches = re.findall(r'value="([\w-]+)"', string_cap)
-            print('aqui>> ', matches[0])  # ['731bc3ee-bc6d-48d9-bf43-1b11cfa718e5']
+            javascript_returned = response.text
+            javascript_returned = javascript_returned.split("rogue_racoons")[1]
+            matches = re.findall(r'value="([\w-]+)"', javascript_returned)
             definitive_raccoon = str(matches[0])  # ['731bc3ee-bc6d-48d9-bf43-1b11cfa718e5']
 
             return definitive_raccoon, response_cookies
