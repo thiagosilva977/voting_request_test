@@ -154,10 +154,10 @@ class VotingPandas:
                                                         operating_system=operating_system,
                                                         secondary_panda_name=secondary_panda_type)
 
-            rats_token, step_2_cookies = self.get_component_for_raccoon(
+            rats_token, step_2_cookies = self.step_2_get_infos_for_step3(
                 session_cookie=first_step_cookies['session'],
                 useragent=current_useragent,
-                current_voter=current_panda_parameter['panda_type'])
+                panda_type=current_panda_parameter['panda_type'])
 
             raccoon_token, step_3_cookies = self.get_component_raccoon(session_cookie=step_2_cookies,
                                                                        useragent=current_useragent,
@@ -251,49 +251,30 @@ class VotingPandas:
 
         return response.cookies.get_dict(), response.text
 
-    def get_component_for_raccoon(self, session_cookie, useragent, current_voter):
+    def step_2_get_infos_for_step3(self, session_cookie,
+                                   useragent: str,
+                                   panda_type: str,
+                                   panda_key: str):
+        """
+        Collect information from /hastorni.js, to use in step 3.
+        This step provides "rat" token and new cookies to use in next steps.
+        
+        :param panda_key:
+        :param session_cookie: previous session cookies
+        :param useragent: current useragent
+        :param panda_type: panda that will vote
+        :return: rat token , request cookies
+        """
 
-        cookies = {
-            'session': session_cookie,
-        }
+        def capture_caniformia_kretzoi_dictionary(text_from_response):
+            """
+            Get dictionary responsible for creating the "rats" code.
 
-        headers = {
-            'User-Agent': useragent,
-            'Accept': '*/*',
-            'Accept-Language': 'en-US,en;q=0.5',
-            # 'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Referer': 'https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI',
-            # 'Cookie': 'session=.eJxNkclqwzAQhl_FzKkFOZG8RXLuXaA9tYXejCTLwcSxgyxnJe_eqSfQgg4f_zISmisMI5Tw1vbTKTrJoioyYDC6vfY6DB4t4xD9bkQ5DFvXV1t3vsvHNvRu_HOmtkYnUTZpclvEMnVZnOUmj_VKudjmqSpUKhMn69-Kb3VXzY3Pl49XVKbR-UpvXB9Qex8ubdfpZb7g0cO3EOvoy0x9mNbR_7euI38oBVcL_hg9O7sdlgkXHI-InlrvmuG0nN379F7vXBW06RyUV6igFKpIcgZ6JlEwMESKgSUXqZ4pTRg4crHREK0YbCiH1FKOM-hIEwx2lMsY9EQpg4Fc1PZEeK8nkvj3RDgl0DycMlEX3QNp2D1SDuedSUO6kJbcMDiEtt9U2lrcUDXvB39V20Y0NU9imTmFu7E6VjLXsamF5NxkhbEZ3H4AI8eO2g.Y-1MBg.1GQ1AulVwTzjZuuMSBAYPk0Er-g',
-            'Sec-Fetch-Dest': 'script',
-            'Sec-Fetch-Mode': 'no-cors',
-            'Sec-Fetch-Site': 'same-origin',
-            # Requests doesn't support trailers
-            # 'TE': 'trailers',
-        }
-
-        response = requests.get('https://panda.belvo.io/hastorni.js', cookies=cookies, headers=headers)
-
-        print(response.text)
-        response_cookies = session_cookie
-
-        folivore = [110, 97, 118, 105, 103, 97, 116, 111, 114]
-        carnivorae = [117, 115, 101, 114, 65, 103, 101, 110, 116]
-        ursidae = [124, 124, 112, 97, 110, 100, 111, 115, 111, 98, 101, 97, 114, 105, 110, 109, 105, 110, 100, 124, 124]
-        mammalia = [112, 108, 97, 116, 102, 111, 114, 109]
-
-        # Dicionario relacionado À rats request
-        # Basicamente o dicionário é formado através de cada letra e separado por |
-        # Exemplo: beary_pawsitively_forbearance
-        # Equivale a: 1454|1450|1451|1463|1468|1460|1461|1451|1458|1455|1465|1466|1465|1469|1450|1456|1468|1460|1452|1459|1463|1454|1450|1451|1463|1451|1448|1464|1450
-
-        def formar_string(s, caniformia_kretzoi):
-            s = s.replace(" ", "_")  # substitui espaços por underline
-            return "|".join([str(caniformia_kretzoi[c]) for c in s])
-
-        def capture_dictionary(string):
+            :param text_from_response: basically "response.text"
+            :return: caniformia_kretzoi dictionary
+            """
             pattern = r'var caniformia_kretzoi = ({.*?});'
-            match = re.search(pattern, string)
+            match = re.search(pattern, text_from_response)
             if match:
                 dictionary_str = match.group(1)
                 dictionary = json.loads(dictionary_str)
@@ -301,49 +282,54 @@ class VotingPandas:
             else:
                 return None
 
-        resposta_string = response.text
-        created_caniformia_kretzoi = capture_dictionary(resposta_string)
+        def rat_string_formatter(string_to_format, dictionary_codes):
+            """
+            Transform panda type to rats string format
 
-        rat_formado = formar_string(s=current_voter, caniformia_kretzoi=created_caniformia_kretzoi)
-        print('rat> ', rat_formado)
+            :param string_to_format: string to transform to code
+            :param dictionary_codes: dictionary with codes for each letter
+            :return: "rat" format string
+            """
+            string_to_format = string_to_format.replace(" ", "_")
+            return "|".join([str(dictionary_codes[c]) for c in string_to_format])
 
-        def to_base64(s):
-            return base64.b64encode(s.encode()).decode()
+        def transform_to_base64(string_to_encode):
+            """
+            Transform some string to base64 code
 
-        result = to_base64(rat_formado)
-        print('rat_encoded> ', result)
+            :param string_to_encode: string to encode
+            :return: encoded string
+            """
+            return base64.b64encode(string_to_encode.encode()).decode()
 
-        ## Precisa formar o beararms:catbear
+        request_cookie = {
+            'session': session_cookie,
+        }
 
-        # beararms code parece um unique identifier UUID
-        import uuid
+        request_header = {
+            'User-Agent': useragent,
+            'Accept': '*/*',
+            'Accept-Language': 'en-US,en;q=0.5',
+            # 'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Referer': 'https://panda.belvo.io/?trial_key=' + str(panda_key) + '',
+            'Sec-Fetch-Dest': 'script',
+            'Sec-Fetch-Mode': 'no-cors',
+            'Sec-Fetch-Site': 'same-origin'
+        }
 
-        def string_to_uuid(input_string):
-            # Define o namespace UUID utilizado como base para a criação do UUID v5
-            namespace = uuid.NAMESPACE_URL
+        response = requests.get('https://panda.belvo.io/hastorni.js', cookies=request_cookie, headers=request_header)
 
-            # Cria um UUID v5 a partir do namespace e da string de entrada
-            uuid_str = str(uuid.uuid5(namespace, input_string))
+        response_cookies = session_cookie
 
-            # Formata o UUID para o padrão especificado
-            uuid_formatted = "{}-{}-{}-{}-{}".format(
-                uuid_str[0:8], uuid_str[8:12], uuid_str[12:16], uuid_str[16:20], uuid_str[20:32]
-            )
+        caniformia_kretzoi_dictionary = capture_caniformia_kretzoi_dictionary(text_from_response=response.text)
 
-            return uuid_formatted
+        rat_format_string = rat_string_formatter(string_to_format=panda_type,
+                                                 dictionary_codes=caniformia_kretzoi_dictionary)
 
-        # o primeiro parâmetro de código refere-se à um UUID de uma string presente em carnivoreatingbambu
+        encoded_rat_string = transform_to_base64(rat_format_string)
 
-        import uuid
-
-        s = 'beary_pawsitively_forbearance'
-        namespace = uuid.UUID('00000000-0000-0000-0000-000000000000')
-        u = uuid.uuid5(namespace, s)
-
-        # cat bear A variável cat_bear está recebendo o resultado da função btoa,
-        # que é utilizada para codificar em base64 o valor retornado da função encodeURI
-
-        return result, response_cookies
+        return encoded_rat_string, response_cookies
 
     def converter_user_agent(self, user_agent, operating_system, possivelstring):
         # Substitui os caracteres especiais pelos seus códigos hexadecimais
