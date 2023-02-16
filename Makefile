@@ -1,5 +1,5 @@
 # Docker info
-DOCKER_IMAGE_NAME=thiago977/webscraping-template
+DOCKER_IMAGE_NAME=thiago977/election_pandas_future
 DOCKER_IMAGE_TAG=1.0.0
 
 # Install project dependencies
@@ -10,23 +10,11 @@ setup:
 
 # Uninstall project dependencies
 unsetup:
-	pip3 uninstall -y someexternalprojectname
-
-
 	rm -f make_setup
 
-# Use this only in private projects
-docker/id_rsa:
-	# To access private projects
-	#cp ~/.ssh/id_rsa docker/id_rsa
-
-# Use this only in private projects
-docker/id_rsa.pub:
-	# To access private projects
-	#cp ~/.ssh/id_rsa.pub docker/id_rsa.pub
 
 # Build docker package
-docker/package: docker/id_rsa docker/id_rsa.pub
+docker/package:
 	python3 setup.py bdist_wheel --dist-dir=docker/package
 	rm -rf build
 
@@ -52,8 +40,6 @@ clean:
 	rm -rf docker/image
 	rm -rf docker/push
 	rm -rf docker/push-latest
-	rm -rf docker/id_rsa
-	rm -rf docker/id_rsa.pub
 
 # Uninstall/install dependencies, create docker image and push.
 do_all:
