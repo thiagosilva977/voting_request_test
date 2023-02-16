@@ -86,6 +86,7 @@ class VotingPandas:
         self._successful_data_to_export = []
         self._bad_data_to_export = []
         self._pandas_destiny_choice = '1'
+        self._final_voting_results = None
 
     def run_pandas_voting(self):
         """
@@ -123,7 +124,19 @@ class VotingPandas:
         df_success.to_excel('success_data.xlsx')
         df_failed.to_excel('failed_data.xlsx')
 
-        # saida oficial:
+        print('\n\n')
+        print(df_success)
+        print(df_failed)
+
+        print('\n\n'
+              '###### ELECTION RESULTS ######\n\n')
+
+        print(self._pandas_destiny_choice)
+
+        print('\n\n'
+              '##############################')
+
+        # expected result:
         # {"pandas_future": {"live": 5, "die": 0}}
 
     def voting_collector(self, panda_key: str,
@@ -178,15 +191,15 @@ class VotingPandas:
 
                 return False
             else:
-                success_request, response_string = self.voting_system_request(session_cookie=step_3_cookies,
-                                                                              trial_key=panda_key,
-                                                                              current_panda_key=current_panda_parameter[
-                                                                                  'panda_type'],
-                                                                              current_useragent=current_useragent,
-                                                                              definitive_raccoon=raccoon_token,
-                                                                              rats=rats_token)
+                succeed_request, response_from_request = self.step_4_voting_system_request(
+                    session_cookie=step_3_cookies,
+                    panda_key=panda_key,
+                    secondary_panda_name=current_panda_parameter['panda_type'],
+                    current_useragent=current_useragent,
+                    raccoons_token=raccoon_token,
+                    rats_token=rats_token)
 
-                if success_request:
+                if succeed_request:
 
                     self._successful_data_to_export.append({
                         'panda_voter': str(current_panda_parameter['panda_type']),
@@ -197,6 +210,10 @@ class VotingPandas:
                         'rats': str(rats_token),
                         'cookie_final': str(step_3_cookies)
                     })
+
+                    if isinstance(response_from_request, dict):
+                        self._final_voting_results = response_from_request
+
                     return True
                 else:
                     self._bad_data_to_export.append({
@@ -397,7 +414,7 @@ class VotingPandas:
             'Accept-Language': 'en-US,en;q=0.5',
             # 'Accept-Encoding': 'gzip, deflate, br',
             'Connection': 'keep-alive',
-            'Referer': 'https://panda.belvo.io/?trial_key='+str(panda_key),
+            'Referer': 'https://panda.belvo.io/?trial_key=' + str(panda_key),
             'Sec-Fetch-Dest': 'empty',
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin'
@@ -423,10 +440,12 @@ class VotingPandas:
         else:
             return None, response_cookies
 
-    def voting_system_request(self, session_cookie, trial_key, current_panda_key,
-                              current_useragent,
-                              definitive_raccoon,
-                              rats):
+    def step_4_voting_system_request(self, session_cookie,
+                                     panda_key,
+                                     secondary_panda_name,
+                                     current_useragent,
+                                     raccoons_token,
+                                     rats_token):
         cookies = session_cookie
 
         headers = {
@@ -436,23 +455,19 @@ class VotingPandas:
             # 'Accept-Encoding': 'gzip, deflate, br',
             'Origin': 'https://panda.belvo.io',
             'Connection': 'keep-alive',
-            'Referer': 'https://panda.belvo.io/?trial_key=' + str(trial_key),
-            # 'Cookie': 'session=.eJxtkctqwzAQRX_FzKoBOZHkZ5x9H9Cu2kJ3QpbHwcSxgmyneZB_72ToootuzOHMvSMjXcGPUMFrN8yn6FTmJk9BwIgHG-zkA41qJAz7kfTkdziYHZ7_03PXkJapdnWiszhtEoxTRx-rS4zRtUWitFZSynsldLY33Ph4fn8hM48YjN3iMJF785eu7-0qW8ro4UupTfRZz8M0b6K_P7qJwrFScr2Ui-gJ3c6vtKT9SqrosQvY-tOKp7_bB7tHM9m6R6iuYKAq10kuwN5BFwJqNlKAu0NK0DAkApAzFG4ZSgFbDhN0nFECejZawJ4zmYCBIRXgeUTmwEBnBYY13TQD1SfeQ_WZWzQ6sqHWN2doz5kNwYVNcqOQn7pha6xzOI6GX4LuLyvq1qoC4zJXLk7z1sVlkdN7aIe1bLRsG4TbD1bqicA.Y-z_xg.JdwdICHlJjRDlju8qFj-5uYK5Ho',
+            'Referer': 'https://panda.belvo.io/?trial_key=' + str(panda_key),
             'Upgrade-Insecure-Requests': '1',
             'Sec-Fetch-Dest': 'document',
             'Sec-Fetch-Mode': 'navigate',
             'Sec-Fetch-Site': 'same-origin',
-            'Sec-Fetch-User': '?1',
-            # Requests doesn't support trailers
-            # 'TE': 'trailers',
+            'Sec-Fetch-User': '?1'
         }
 
-        print('using panda_key: ', current_panda_key)
         data = {
-            'rogue_racoons': str(definitive_raccoon),
-            'username': str(current_panda_key),
-            'survive': '1',
-            'rats': str(rats),
+            'rogue_racoons': str(raccoons_token),
+            'username': str(secondary_panda_name),
+            'survive': self._pandas_destiny_choice,
+            'rats': str(rats_token),
         }
 
         response = requests.post(
@@ -462,11 +477,13 @@ class VotingPandas:
             data=data,
         )
 
-        print(response.text)
-        print(response.status_code)
-
         if response.status_code == 200:
-            return True, str(response.text)
+            try:
+                request_response = response.json()
+            except:
+                request_response = response.text
+
+            return True, request_response
         else:
             return False, str(response.text)
 
