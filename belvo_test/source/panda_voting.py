@@ -83,6 +83,9 @@ class ScraperName:
         self._proxy_service_pass = proxy_service_pass
         self._run_test = is_testing
 
+        self._sucessfull_data = []
+        self._bad_data = []
+
     def run_scraper(self):
         """
         Function responsible for program run.
@@ -111,93 +114,133 @@ class ScraperName:
             current_os = item['op_sys']
             print(current_os)
             print('########## ', current_panda_parameter, '#########')
-            self.run_sequencial(
-                panda_key=panda_key,
-                current_useragent=current_useragent,
-                current_panda_parameter=current_panda_parameter,
-                operating_system=current_os
-            )
+            valid_vote = False
+            while not valid_vote:
+                valid_vote = self.run_sequencial(
+                    panda_key=panda_key,
+                    current_useragent=current_useragent,
+                    current_panda_parameter=current_panda_parameter,
+                    operating_system=current_os
+                )
+
+            df_success = pd.DataFrame(self._sucessfull_data)
+            df_failed = pd.DataFrame(self._sucessfull_data)
+
+            df_success.to_csv('success_data.csv')
+            df_failed.to_csv('failed_data.csv')
+
+            break
 
     def run_sequencial(self, panda_key, current_useragent, current_panda_parameter, operating_system):
+        try:
+            # Capturar o valor do cabeçalho User-Agent
+            user_agent = current_useragent
 
-        # Capturar o valor do cabeçalho User-Agent
-        user_agent = current_useragent
+            """pattern = r"\((?:\w+; )*(\w+ \w+\d+);"""
 
-        """pattern = r"\((?:\w+; )*(\w+ \w+\d+);"""
+            """if 'inux' in user_agent:
+            elif 'indows' in user_agent:
+                operating_system = 'Windows x86_64'
+            else:
+                operating_system = None"""
 
-        """if 'inux' in user_agent:
-        elif 'indows' in user_agent:
-            operating_system = 'Windows x86_64'
-        else:
-            operating_system = None"""
+            headers = {
+                'User-Agent': current_useragent,
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                # 'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+            }
 
-        headers = {
-            'User-Agent': current_useragent,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            # 'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Sec-Fetch-User': '?1',
-        }
+            params = {
+                'trial_key': panda_key,
+            }
 
-        params = {
-            'trial_key': panda_key,
-        }
+            response = requests.get('https://panda.belvo.io/', params=params, headers=headers)
+            # print(response.text)
+            # print(response.status_code)
+            response_cookies = response.cookies.get_dict()
+            print(response_cookies)
 
-        response = requests.get('https://panda.belvo.io/', params=params, headers=headers)
-        # print(response.text)
-        # print(response.status_code)
-        response_cookies = response.cookies.get_dict()
-        print(response_cookies)
+            soup = BeautifulSoup(response.text, 'html.parser')
 
-        soup = BeautifulSoup(response.text, 'html.parser')
+            possiveis_strings = ['bearwitness', 'beararms', 'beargarden',
+                                 'bearfruit', 'osopanda', 'papabear', 'pandosobearinmind', 'bearmarket',
+                                 'mamabear', 'tedybear']
 
-        possiveis_strings = ['bearwitness', 'beararms', 'beargarden',
-                             'bearfruit', 'osopanda', 'papabear', 'pandosobearinmind', 'bearmarket',
-                             'mamabear', 'tedybear']
+            # Buscando elementos com IDs na lista "possiveis_strings"
+            elementos = soup.find_all(
+                lambda tag: tag.has_attr('id') and any(id in tag['id'] for id in possiveis_strings))
+            possivel_string_encotrada = elementos[0]['id']
 
-        # Buscando elementos com IDs na lista "possiveis_strings"
-        elementos = soup.find_all(lambda tag: tag.has_attr('id') and any(id in tag['id'] for id in possiveis_strings))
-        possivel_string_encotrada = elementos[0]['id']
+            key_antes_do_cat = elementos[0]['value']
+            print(key_antes_do_cat)
+            print(possivel_string_encotrada)
 
-        key_antes_do_cat = elementos[0]['value']
-        print(key_antes_do_cat)
-        print(possivel_string_encotrada)
+            print('target>',
+                  'Mozilla/5.0%20(Macintosh;%20U;%20Intel%20Mac%20OS%20X%2010_5_2;%20en-gb)%20AppleWebKit/525.13%20(KHTML,%20like%20Gecko)%20Version/3.1%20Safari/525.13%7C%7Cbearwitness%7C%7CLinux%20x86_64')
+            useragent_codificado = self.codificar_user_agent(user_agent=current_useragent,
+                                                             operating_system=operating_system,
+                                                             possivelstring=possivel_string_encotrada)
+            print('got   : ', useragent_codificado)
 
-        print('target>',
-              'Mozilla/5.0%20(Macintosh;%20U;%20Intel%20Mac%20OS%20X%2010_5_2;%20en-gb)%20AppleWebKit/525.13%20(KHTML,%20like%20Gecko)%20Version/3.1%20Safari/525.13%7C%7Cbearwitness%7C%7CLinux%20x86_64')
-        useragent_codificado = self.codificar_user_agent(user_agent=current_useragent,
-                                                         operating_system=operating_system,
-                                                         possivelstring=possivel_string_encotrada)
-        print('got   : ', useragent_codificado)
+            """key_antes_do_cat = soup.find('form', {'id':'carnivoreatingbambu'}).next
+            print(key_antes_do_cat)"""
+            print('panda voter: ', current_panda_parameter['panda_type'])
+            # etapa 2: obter a informação rat
+            rats, new_cookies = self.get_component_for_raccoon(session_cookie=response_cookies['session'],
+                                                               useragent=current_useragent,
+                                                               current_voter=current_panda_parameter['panda_type'])
 
-        """key_antes_do_cat = soup.find('form', {'id':'carnivoreatingbambu'}).next
-        print(key_antes_do_cat)"""
-        print('panda voter: ', current_panda_parameter['panda_type'])
-        # etapa 2: obter a informação rat
-        rats, new_cookies = self.get_component_for_raccoon(session_cookie=response_cookies['session'], useragent=current_useragent,
-                                              current_voter=current_panda_parameter['panda_type'])
+            # etapa 3: obter o raccoon para request final
+            definitive_raccoon, cookie_to_final = self.get_component_raccoon(session_cookie=new_cookies,
+                                                                             useragent=current_useragent,
+                                                                             key_antes_do_cat=key_antes_do_cat,
+                                                                             useragent_codificado=useragent_codificado)
+            if definitive_raccoon is None:
+                return False
+            else:
+                print('\n\n\n')
+                success_request, response_string = self.voting_system_request(session_cookie=cookie_to_final,
+                                                                              trial_key=panda_key,
+                                                                              current_panda_key=current_panda_parameter[
+                                                                                  'panda_type'],
+                                                                              current_useragent=current_useragent,
+                                                                              definitive_raccoon=definitive_raccoon,
+                                                                              rats=rats)
 
-        # etapa 3: obter o raccoon para request final
-        definitive_raccoon, cookie_to_final = self.get_component_raccoon(session_cookie=new_cookies,
-                                                        useragent=current_useragent, key_antes_do_cat=key_antes_do_cat,
-                                                        useragent_codificado=useragent_codificado)
-        if definitive_raccoon is None:
-            pass
-        else:
-            print('\n\n\n')
-            self.voting_system_request(session_cookie=cookie_to_final,
-                                       trial_key=panda_key,
-                                       current_panda_key=current_panda_parameter['panda_type'],
-                                       current_useragent=current_useragent,
-                                       definitive_raccoon=definitive_raccoon,
-                                       rats=rats)
+                if success_request:
 
-        print('finished')
+                    self._sucessfull_data.append({
+                        'panda_voter': current_panda_parameter['panda_type'],
+                        'possivel_item':possivel_string_encotrada,
+                        'user_agent': current_useragent,
+                        'os':operating_system,
+                        'raccoon': definitive_raccoon,
+                        'rats': rats,
+                        'cookie_final': cookie_to_final
+                    })
+                    return True
+                else:
+                    self._bad_data.append({
+                        'panda_voter': current_panda_parameter['panda_type'],
+                        'possivel_item': possivel_string_encotrada,
+                        'user_agent': current_useragent,
+                        'os': operating_system,
+                        'raccoon': definitive_raccoon,
+                        'rats': rats,
+                        'cookie_final': cookie_to_final
+                    })
+                    return False
+
+
+        except:
+            return False
 
     def get_component_for_raccoon(self, session_cookie, useragent, current_voter):
 
@@ -291,8 +334,6 @@ class ScraperName:
         namespace = uuid.UUID('00000000-0000-0000-0000-000000000000')
         u = uuid.uuid5(namespace, s)
 
-
-
         # cat bear A variável cat_bear está recebendo o resultado da função btoa,
         # que é utilizada para codificar em base64 o valor retornado da função encodeURI
 
@@ -353,7 +394,6 @@ class ScraperName:
         print(response.status_code)
         response_cookies = response.cookies.get_dict()
 
-
         if response.status_code == 200:
 
             print('\n\n\n')
@@ -409,7 +449,11 @@ class ScraperName:
 
         print(response.text)
         print(response.status_code)
-        print('aaaaa')
+
+        if response.status_code == 200:
+            return True, str(response.text)
+        else:
+            return False, str(response.text)
 
     def data_export(self, doctype_to_export: str, dict_list_to_export: list, pa_schema_to_export: pa.schema):
         """
