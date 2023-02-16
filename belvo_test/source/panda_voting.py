@@ -186,8 +186,6 @@ class ScraperName:
             print(key_antes_do_cat)
             print(possivel_string_encotrada)
 
-            print('target>',
-                  'Mozilla/5.0%20(Macintosh;%20U;%20Intel%20Mac%20OS%20X%2010_5_2;%20en-gb)%20AppleWebKit/525.13%20(KHTML,%20like%20Gecko)%20Version/3.1%20Safari/525.13%7C%7Cbearwitness%7C%7CLinux%20x86_64')
             useragent_codificado = self.codificar_user_agent(user_agent=current_useragent,
                                                              operating_system=operating_system,
                                                              possivelstring=possivel_string_encotrada)
