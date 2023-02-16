@@ -20,7 +20,8 @@ setup(
         "pandas>=1.4.2",
         "fastparquet>=0.8.1",
         "pyarrow>=10.0.1",
-        "fake_useragent>=1.1.1"
+        "fake_useragent>=1.1.1",
+        "openpyxl>=3.1.1",
     ],
     entry_points={
         'console_scripts': [
