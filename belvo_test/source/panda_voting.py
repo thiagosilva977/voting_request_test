@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import random
 import re
 
@@ -8,6 +9,9 @@ import requests
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from numpy import random
+
+logging.basicConfig(filename='file.log',
+                    format='%(asctime)s:%(levelname)s:%(name)s:%(message)s')
 
 
 class VotingPandas:
@@ -73,12 +77,21 @@ class VotingPandas:
         self._bad_data_to_export = []
         self._pandas_destiny_choice = '1'
         self._final_voting_results = None
+        self.logger = logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
     def run_pandas_voting(self):
         """
         Function responsible for program run.
         :return: what you want for output.
         """
+        self.logger.info('Initializing the fate of the panda bears')
+
         panda_key = 'A3F3D333452DF83D32A387F3FC3-THSI'
 
         pandas_voters_information = [
@@ -92,6 +105,7 @@ class VotingPandas:
         random.shuffle(pandas_voters_information)
 
         for panda_to_vote in pandas_voters_information:
+            self.logger.info(str(f'Preparing vote for: {panda_to_vote}'))
             current_os = panda_to_vote['op_sys']
             successfully_vote = False
             while not successfully_vote:
@@ -101,8 +115,10 @@ class VotingPandas:
                     panda_key=panda_key,
                     current_useragent=current_useragent,
                     current_panda_parameter=panda_to_vote,
-                    operating_system=current_os
+                    panda_operating_system=current_os
                 )
+        self.logger.info('All votes collected')
+        self.logger.info(str(self._pandas_destiny_choice))
 
         df_success = pd.DataFrame(self._successful_data_to_export)
         df_failed = pd.DataFrame(self._bad_data_to_export)
@@ -117,7 +133,7 @@ class VotingPandas:
         print('\n\n'
               '###### ELECTION RESULTS ######\n\n')
 
-        print(self._pandas_destiny_choice)
+        print()
 
         print('\n\n'
               '##############################')
@@ -128,7 +144,17 @@ class VotingPandas:
     def voting_collector(self, panda_key: str,
                          current_useragent: str,
                          current_panda_parameter: dict,
-                         operating_system: str):
+                         panda_operating_system: str):
+        """
+        Function responsible for logic of voting system.
+
+        :param panda_key: panda key (trial key)
+        :param current_useragent: useragent
+        :param current_panda_parameter: panda parameter
+        :param panda_operating_system: operating system of panda
+        :return:
+        """
+        self.logger.info('Initializing voting collector')
         secondary_panda_type = None
         raccoon_token = None
         rats_token = None
@@ -137,46 +163,60 @@ class VotingPandas:
                                  'bearfruit', 'osopanda', 'papabear', 'pandosobearinmind', 'bearmarket',
                                  'mamabear', 'tedybear']
         try:
-
+            self.logger.info('[STEP 1] Collect first request parameters')
             first_step_cookies, first_step_html = self.step_1_first_request_website(
                 current_useragent=current_useragent,
                 panda_key=panda_key
             )
-
+            self.logger.debug('Souping HTML collected from step 1')
             soup = BeautifulSoup(first_step_html, 'html.parser')
             secondary_panda_type_token_element = soup.find_all(
                 lambda tag: tag.has_attr('id') and any(id in tag['id'] for id in secondary_panda_types))
             secondary_panda_type = secondary_panda_type_token_element[0]['id']
             secondary_panda_token = secondary_panda_type_token_element[0]['value']
+            self.logger.debug(str(f'Collected secondary_panda_token: {secondary_panda_token} and '
+                                  f'secondary_panda_type: {secondary_panda_type}'))
 
+            self.logger.debug('Encoding user-agent')
             encoded_user_agent = self.encode_user_agents(user_agent_format_string=current_useragent,
-                                                         operating_system=operating_system,
+                                                         operating_system=panda_operating_system,
                                                          secondary_panda_name=secondary_panda_type)
+            self.logger.debug(str(f"Encoded the user-agent: {encoded_user_agent}"))
 
+            self.logger.info('[STEP 2] Collecting rats token and cookie session')
             rats_token, step_2_cookie_session = self.step_2_get_information_for_step3(
                 session_cookie=first_step_cookies['session'],
                 useragent=current_useragent,
                 panda_type=current_panda_parameter['panda_type'],
                 panda_key=panda_key)
 
+            self.logger.debug(str(f"Collected rats token: {rats_token} and cookie session: {step_2_cookie_session}"))
+
+            self.logger.info('[STEP 3] Collecting raccoon token and cookies')
             raccoon_token, step_3_cookies = self.step_3_get_raccoon_token(session_cookie=step_2_cookie_session,
                                                                           useragent=current_useragent,
                                                                           secondary_panda_token=secondary_panda_token,
                                                                           encoded_useragent=encoded_user_agent,
                                                                           panda_key=panda_key)
+
+
             if raccoon_token is None:
                 self._bad_data_to_export.append({
                     'panda_voter': str(current_panda_parameter['panda_type']),
                     'possivel_item': str(secondary_panda_type),
                     'user_agent': str(current_useragent),
-                    'os': str(operating_system),
+                    'os': str(panda_operating_system),
                     'raccoon': str(raccoon_token),
                     'rats': str(rats_token),
                     'cookie_final': str(step_3_cookies)
                 })
+                self.logger.warning(str(f"Cannot collect raccoon token: {raccoon_token}"))
 
                 return False
             else:
+                self.logger.info(str(f"Collected raccoon token: {raccoon_token}"))
+
+                self.logger.info('[STEP 4] Validating vote')
                 succeed_request, response_from_request = self.step_4_voting_system_request(
                     session_cookie=step_3_cookies,
                     panda_key=panda_key,
@@ -186,12 +226,14 @@ class VotingPandas:
                     rats_token=rats_token)
 
                 if succeed_request:
+                    self.logger.info(str(f"SUCESS: Vote validated"))
+                    self.logger.info(str(f"Vote response: {response_from_request}"))
 
                     self._successful_data_to_export.append({
                         'panda_voter': str(current_panda_parameter['panda_type']),
                         'possivel_item': str(secondary_panda_type),
                         'user_agent': str(current_useragent),
-                        'os': str(operating_system),
+                        'os': str(panda_operating_system),
                         'raccoon': str(raccoon_token),
                         'rats': str(rats_token),
                         'cookie_final': str(step_3_cookies)
@@ -206,7 +248,7 @@ class VotingPandas:
                         'panda_voter': str(current_panda_parameter['panda_type']),
                         'possivel_item': str(secondary_panda_type),
                         'user_agent': str(current_useragent),
-                        'os': str(operating_system),
+                        'os': str(panda_operating_system),
                         'raccoon': str(raccoon_token),
                         'rats': str(rats_token),
                         'cookie_final': str(step_3_cookies)
@@ -217,7 +259,7 @@ class VotingPandas:
                 'panda_voter': str(current_panda_parameter['panda_type']),
                 'possivel_item': str(secondary_panda_type),
                 'user_agent': str(current_useragent),
-                'os': str(operating_system),
+                'os': str(panda_operating_system),
                 'raccoon': str(raccoon_token),
                 'rats': str(rats_token),
                 'cookie_final': str(step_3_cookies)
