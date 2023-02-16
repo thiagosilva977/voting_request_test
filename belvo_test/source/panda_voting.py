@@ -93,10 +93,7 @@ class ScraperName:
         """
         panda_key = 'A3F3D333452DF83D32A387F3FC3-THSI'
 
-        ua = UserAgent()
-        current_useragent = ua.random
         # current_useragent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_2; en-gb) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13"
-        print(current_useragent)
 
         pandas_types_token = [
             {'panda_type': 'bearfoot_bearitone', 'op_sys': 'Linux x86_64'},
@@ -106,16 +103,18 @@ class ScraperName:
             {'panda_type': 'beary_pawsitively_forbearance', 'op_sys': 'Solaris x86_64'},
 
         ]
-
-        current_panda_parameter = pandas_types_token[0]
+        random.shuffle(pandas_types_token)
 
         for item in pandas_types_token:
             current_panda_parameter = item
+            # current_panda_parameter = pandas_types_token[1]
             current_os = item['op_sys']
             print(current_os)
             print('########## ', current_panda_parameter, '#########')
             valid_vote = False
             while not valid_vote:
+                ua = UserAgent()
+                current_useragent = ua.random
                 valid_vote = self.run_sequencial(
                     panda_key=panda_key,
                     current_useragent=current_useragent,
@@ -123,15 +122,20 @@ class ScraperName:
                     operating_system=current_os
                 )
 
-            df_success = pd.DataFrame(self._sucessfull_data)
-            df_failed = pd.DataFrame(self._sucessfull_data)
+        df_success = pd.DataFrame(self._sucessfull_data)
+        df_failed = pd.DataFrame(self._bad_data)
 
-            df_success.to_csv('success_data.csv')
-            df_failed.to_csv('failed_data.csv')
+        df_success.to_excel('success_data.xlsx')
+        df_failed.to_excel('failed_data.xlsx')
 
-            break
+        # saida oficial:
+        # {"pandas_future": {"live": 5, "die": 0}}
 
     def run_sequencial(self, panda_key, current_useragent, current_panda_parameter, operating_system):
+        possivel_string_encotrada = None
+        definitive_raccoon = None
+        rats = None
+        cookie_to_final = None
         try:
             # Capturar o valor do cabeçalho User-Agent
             user_agent = current_useragent
@@ -203,6 +207,16 @@ class ScraperName:
                                                                              key_antes_do_cat=key_antes_do_cat,
                                                                              useragent_codificado=useragent_codificado)
             if definitive_raccoon is None:
+                self._bad_data.append({
+                    'panda_voter': str(current_panda_parameter['panda_type']),
+                    'possivel_item': str(possivel_string_encotrada),
+                    'user_agent': str(current_useragent),
+                    'os': str(operating_system),
+                    'raccoon': str(definitive_raccoon),
+                    'rats': str(rats),
+                    'cookie_final': str(cookie_to_final)
+                })
+
                 return False
             else:
                 print('\n\n\n')
@@ -217,29 +231,39 @@ class ScraperName:
                 if success_request:
 
                     self._sucessfull_data.append({
-                        'panda_voter': current_panda_parameter['panda_type'],
-                        'possivel_item':possivel_string_encotrada,
-                        'user_agent': current_useragent,
-                        'os':operating_system,
-                        'raccoon': definitive_raccoon,
-                        'rats': rats,
-                        'cookie_final': cookie_to_final
+                        'panda_voter': str(current_panda_parameter['panda_type']),
+                        'possivel_item': str(possivel_string_encotrada),
+                        'user_agent': str(current_useragent),
+                        'os': str(operating_system),
+                        'raccoon': str(definitive_raccoon),
+                        'rats': str(rats),
+                        'cookie_final': str(cookie_to_final)
                     })
                     return True
                 else:
                     self._bad_data.append({
-                        'panda_voter': current_panda_parameter['panda_type'],
-                        'possivel_item': possivel_string_encotrada,
-                        'user_agent': current_useragent,
-                        'os': operating_system,
-                        'raccoon': definitive_raccoon,
-                        'rats': rats,
-                        'cookie_final': cookie_to_final
+                        'panda_voter': str(current_panda_parameter['panda_type']),
+                        'possivel_item': str(possivel_string_encotrada),
+                        'user_agent': str(current_useragent),
+                        'os': str(operating_system),
+                        'raccoon': str(definitive_raccoon),
+                        'rats': str(rats),
+                        'cookie_final': str(cookie_to_final)
                     })
                     return False
 
 
         except:
+            self._bad_data.append({
+                'panda_voter': str(current_panda_parameter['panda_type']),
+                'possivel_item': str(possivel_string_encotrada),
+                'user_agent': str(current_useragent),
+                'os': str(operating_system),
+                'raccoon': str(definitive_raccoon),
+                'rats': str(rats),
+                'cookie_final': str(cookie_to_final)
+            })
+
             return False
 
     def get_component_for_raccoon(self, session_cookie, useragent, current_voter):
@@ -325,9 +349,6 @@ class ScraperName:
 
         # o primeiro parâmetro de código refere-se à um UUID de uma string presente em carnivoreatingbambu
 
-        possiveis_strings = ['bearwitness', 'beararms', 'beargarden',
-                             'bearfruit', 'osopanda', 'papabear', 'pandosobearinmind', 'bearmarket',
-                             'mamabear', 'tedybear']
         import uuid
 
         s = 'beary_pawsitively_forbearance'
