@@ -26,7 +26,6 @@ setup(
         'console_scripts': [
             "start-elections=belvo_test.main:main"
         ]
-    },
-    include_package_data=True
+    }
 
 )

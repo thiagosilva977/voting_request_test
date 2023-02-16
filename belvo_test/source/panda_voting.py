@@ -16,7 +16,7 @@ logging.basicConfig(filename='file.log',
 
 class VotingPandas:
 
-    def __init__(self, pandas_destiny_choice:str):
+    def __init__(self, pandas_destiny_choice: str):
 
         self._successful_data_to_export = []
         self._bad_data_to_export = []
@@ -172,6 +172,7 @@ class VotingPandas:
                 if succeed_request:
                     self.logger.info(str(f"SUCESS: Vote validated"))
                     self.logger.info(str(f"Vote response: {response_from_request}"))
+                    self._final_voting_results = str(response_from_request)
 
                     self._successful_data_to_export.append({
                         'panda_voter': str(current_panda_parameter['panda_type']),
@@ -182,9 +183,6 @@ class VotingPandas:
                         'rats': str(rats_token),
                         'cookie_final': str(step_3_cookies)
                     })
-
-                    if "pandas_future" in str(response_from_request):
-                        self._final_voting_results = response_from_request
 
                     return True
                 else:
