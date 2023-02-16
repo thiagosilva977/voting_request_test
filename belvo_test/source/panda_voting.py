@@ -220,7 +220,16 @@ class VotingPandas:
 
             return False
 
-    def step_1_first_request_website(self, current_useragent, panda_key):
+    @staticmethod
+    def step_1_first_request_website(current_useragent: str,
+                                     panda_key: str):
+        """
+        Responsible to get first information of website request.
+
+        :param current_useragent: user agent
+        :param panda_key: panda key
+        :return: response cookies , response text (html)
+        """
         headers = {
             'User-Agent': current_useragent,
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
