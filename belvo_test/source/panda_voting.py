@@ -36,6 +36,11 @@ class VotingPandas:
         :return: what you want for output.
         """
         self.logger.info('Initializing the fate of the panda bears')
+        if self._pandas_destiny_choice == '1':
+            vote_choice_target = 'SAVE PANDAS!!'
+        else:
+            vote_choice_target = 'DESTROY ALL THE PANDAS!! WE HATE PANDAS !'
+        self.logger.info(str(f"Targeting votes to: {vote_choice_target}"))
 
         panda_key = 'A3F3D333452DF83D32A387F3FC3-THSI'
 
@@ -63,7 +68,6 @@ class VotingPandas:
                     panda_operating_system=current_os
                 )
         self.logger.info('All votes collected')
-        self.logger.info(str(self._pandas_destiny_choice))
 
         df_success = pd.DataFrame(self._successful_data_to_export)
         df_failed = pd.DataFrame(self._bad_data_to_export)
@@ -78,7 +82,7 @@ class VotingPandas:
         print('\n\n'
               '###### ELECTION RESULTS ######\n\n')
 
-        print()
+        print(self._final_voting_results)
 
         print('\n\n'
               '##############################')
