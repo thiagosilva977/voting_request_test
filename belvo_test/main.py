@@ -6,7 +6,7 @@ from belvo_test.constants import AWS_S3_KEY_ENV, AWS_S3_SECRET_ENV, AWS_S3_REGIO
     PARAMS_FILE, CUSTOMER_AWS_KEY, CUSTOMER_AWS_SECRET, CUSTOMER_AWS_REGION, MONGO_HOST, MONGO_USER, \
     MONGO_PASSWORD, SQL_HOST, SQL_USER, SQL_PASSWORD, PROJECT_PATH
 from belvo_test.persistence.microdata import save_output_data
-from belvo_test.source.panda_voting import ScraperName
+from belvo_test.source.panda_voting import VotingPandas
 
 
 @click.command("execute-scraper")
@@ -121,38 +121,38 @@ def main(scraper_name: str,
 
     if run_program:
         # Passes all input information to main class
-        scraper_class = ScraperName(parameters_to_run=[],
-                                    scraper_name=scraper_name,
-                                    execution_type=execution_type,
-                                    is_testing=run_test,
-                                    project_path=project_path,
-                                    doctype_to_export=doctype_to_export,
-                                    local_path_to_export=local_path_to_export,
-                                    received_input=received_input,
-                                    max_chunk_lines=max_chunk_lines,
-                                    max_worker_instances=max_worker_instances,
-                                    current_worker_number=current_worker_number,
-                                    aws_s3_key=aws_s3_key,
-                                    aws_s3_secret=aws_s3_secret,
-                                    aws_s3_region=aws_s3_region,
-                                    customer_s3_key=customer_s3_key,
-                                    customer_s3_secret=customer_s3_secret,
-                                    customer_s3_region=customer_s3_region,
-                                    customer_s3_bucket=customer_s3_bucket,
-                                    customer_s3_prefix=customer_s3_prefix,
-                                    option_save_to_customer_bucket=option_save_to_customer_bucket,
-                                    mongo_host=mongo_host,
-                                    mongo_user=mongo_user,
-                                    mongo_password=mongo_password,
-                                    sql_host=sql_host,
-                                    sql_mongo_user=sql_user,
-                                    sql_mongo_password=sql_password,
-                                    proxy_service_user=proxy_service_user,
-                                    proxy_service_pass=proxy_service_pass
-                                    )
+        scraper_class = VotingPandas(parameters_to_run=[],
+                                     scraper_name=scraper_name,
+                                     execution_type=execution_type,
+                                     is_testing=run_test,
+                                     project_path=project_path,
+                                     doctype_to_export=doctype_to_export,
+                                     local_path_to_export=local_path_to_export,
+                                     received_input=received_input,
+                                     max_chunk_lines=max_chunk_lines,
+                                     max_worker_instances=max_worker_instances,
+                                     current_worker_number=current_worker_number,
+                                     aws_s3_key=aws_s3_key,
+                                     aws_s3_secret=aws_s3_secret,
+                                     aws_s3_region=aws_s3_region,
+                                     customer_s3_key=customer_s3_key,
+                                     customer_s3_secret=customer_s3_secret,
+                                     customer_s3_region=customer_s3_region,
+                                     customer_s3_bucket=customer_s3_bucket,
+                                     customer_s3_prefix=customer_s3_prefix,
+                                     option_save_to_customer_bucket=option_save_to_customer_bucket,
+                                     mongo_host=mongo_host,
+                                     mongo_user=mongo_user,
+                                     mongo_password=mongo_password,
+                                     sql_host=sql_host,
+                                     sql_mongo_user=sql_user,
+                                     sql_mongo_password=sql_password,
+                                     proxy_service_user=proxy_service_user,
+                                     proxy_service_pass=proxy_service_pass
+                                     )
         # Select execution types
         if execution_type == 'normal':
-            stats_to_return = scraper_class.run_scraper()
+            stats_to_return = scraper_class.run_pandas_voting()
         elif execution_type == 'create_params':
             scraper_class.create_parameters()
 

@@ -24,7 +24,7 @@ from pyarrow import csv as pyacsv
 from belvo_test.source import data_schemas
 
 
-class ScraperName:
+class VotingPandas:
 
     def __init__(self, parameters_to_run: list,
                  scraper_name: str,
@@ -83,19 +83,18 @@ class ScraperName:
         self._proxy_service_pass = proxy_service_pass
         self._run_test = is_testing
 
-        self._sucessfull_data = []
-        self._bad_data = []
+        self._successful_data_to_export = []
+        self._bad_data_to_export = []
+        self._pandas_destiny_choice = '1'
 
-    def run_scraper(self):
+    def run_pandas_voting(self):
         """
         Function responsible for program run.
         :return: what you want for output.
         """
         panda_key = 'A3F3D333452DF83D32A387F3FC3-THSI'
 
-        # current_useragent = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_2; en-gb) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13"
-
-        pandas_types_token = [
+        pandas_voters_information = [
             {'panda_type': 'bearfoot_bearitone', 'op_sys': 'Linux x86_64'},
             {'panda_type': 'bearium_bearon', 'op_sys': 'Windows x86_64'},
             {'panda_type': 'stupandas_bamboozle', 'op_sys': 'MACOS x86_64'},
@@ -103,27 +102,23 @@ class ScraperName:
             {'panda_type': 'beary_pawsitively_forbearance', 'op_sys': 'Solaris x86_64'},
 
         ]
-        random.shuffle(pandas_types_token)
+        random.shuffle(pandas_voters_information)
 
-        for item in pandas_types_token:
-            current_panda_parameter = item
-            # current_panda_parameter = pandas_types_token[1]
-            current_os = item['op_sys']
-            print(current_os)
-            print('########## ', current_panda_parameter, '#########')
-            valid_vote = False
-            while not valid_vote:
+        for panda_to_vote in pandas_voters_information:
+            current_os = panda_to_vote['op_sys']
+            successfully_vote = False
+            while not successfully_vote:
                 ua = UserAgent()
                 current_useragent = ua.random
-                valid_vote = self.run_sequencial(
+                successfully_vote = self.voting_collector(
                     panda_key=panda_key,
                     current_useragent=current_useragent,
-                    current_panda_parameter=current_panda_parameter,
+                    current_panda_parameter=panda_to_vote,
                     operating_system=current_os
                 )
 
-        df_success = pd.DataFrame(self._sucessfull_data)
-        df_failed = pd.DataFrame(self._bad_data)
+        df_success = pd.DataFrame(self._successful_data_to_export)
+        df_failed = pd.DataFrame(self._bad_data_to_export)
 
         df_success.to_excel('success_data.xlsx')
         df_failed.to_excel('failed_data.xlsx')
@@ -131,138 +126,121 @@ class ScraperName:
         # saida oficial:
         # {"pandas_future": {"live": 5, "die": 0}}
 
-    def run_sequencial(self, panda_key, current_useragent, current_panda_parameter, operating_system):
-        possivel_string_encotrada = None
-        definitive_raccoon = None
-        rats = None
-        cookie_to_final = None
-        try:
-            # Capturar o valor do cabeçalho User-Agent
-            user_agent = current_useragent
-
-            """pattern = r"\((?:\w+; )*(\w+ \w+\d+);"""
-
-            """if 'inux' in user_agent:
-            elif 'indows' in user_agent:
-                operating_system = 'Windows x86_64'
-            else:
-                operating_system = None"""
-
-            headers = {
-                'User-Agent': current_useragent,
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                # 'Accept-Encoding': 'gzip, deflate, br',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'Sec-Fetch-Dest': 'document',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'none',
-                'Sec-Fetch-User': '?1',
-            }
-
-            params = {
-                'trial_key': panda_key,
-            }
-
-            response = requests.get('https://panda.belvo.io/', params=params, headers=headers)
-            # print(response.text)
-            # print(response.status_code)
-            response_cookies = response.cookies.get_dict()
-            print(response_cookies)
-
-            soup = BeautifulSoup(response.text, 'html.parser')
-
-            possiveis_strings = ['bearwitness', 'beararms', 'beargarden',
+    def voting_collector(self, panda_key: str,
+                         current_useragent: str,
+                         current_panda_parameter: dict,
+                         operating_system: str):
+        secondary_panda_type = None
+        raccoon_token = None
+        rats_token = None
+        step_3_cookies = None
+        secondary_panda_types = ['bearwitness', 'beararms', 'beargarden',
                                  'bearfruit', 'osopanda', 'papabear', 'pandosobearinmind', 'bearmarket',
                                  'mamabear', 'tedybear']
+        try:
 
-            # Buscando elementos com IDs na lista "possiveis_strings"
-            elementos = soup.find_all(
-                lambda tag: tag.has_attr('id') and any(id in tag['id'] for id in possiveis_strings))
-            possivel_string_encotrada = elementos[0]['id']
+            first_step_cookies, first_step_html = self.step_1_first_request_website(
+                current_useragent=current_useragent,
+                panda_key=panda_key
+            )
 
-            key_antes_do_cat = elementos[0]['value']
-            print(key_antes_do_cat)
-            print(possivel_string_encotrada)
+            soup = BeautifulSoup(first_step_html, 'html.parser')
+            secondary_panda_type_token_element = soup.find_all(
+                lambda tag: tag.has_attr('id') and any(id in tag['id'] for id in secondary_panda_types))
+            secondary_panda_type = secondary_panda_type_token_element[0]['id']
+            secondary_panda_token = secondary_panda_type_token_element[0]['value']
 
-            useragent_codificado = self.codificar_user_agent(user_agent=current_useragent,
-                                                             operating_system=operating_system,
-                                                             possivelstring=possivel_string_encotrada)
-            print('got   : ', useragent_codificado)
+            encoded_user_agent = self.codificar_user_agent(user_agent=current_useragent,
+                                                           operating_system=operating_system,
+                                                           possivelstring=secondary_panda_type)
 
-            """key_antes_do_cat = soup.find('form', {'id':'carnivoreatingbambu'}).next
-            print(key_antes_do_cat)"""
-            print('panda voter: ', current_panda_parameter['panda_type'])
-            # etapa 2: obter a informação rat
-            rats, new_cookies = self.get_component_for_raccoon(session_cookie=response_cookies['session'],
-                                                               useragent=current_useragent,
-                                                               current_voter=current_panda_parameter['panda_type'])
+            rats_token, step_2_cookies = self.get_component_for_raccoon(
+                session_cookie=first_step_cookies['session'],
+                useragent=current_useragent,
+                current_voter=current_panda_parameter['panda_type'])
 
-            # etapa 3: obter o raccoon para request final
-            definitive_raccoon, cookie_to_final = self.get_component_raccoon(session_cookie=new_cookies,
-                                                                             useragent=current_useragent,
-                                                                             key_antes_do_cat=key_antes_do_cat,
-                                                                             useragent_codificado=useragent_codificado)
-            if definitive_raccoon is None:
-                self._bad_data.append({
+            raccoon_token, step_3_cookies = self.get_component_raccoon(session_cookie=step_2_cookies,
+                                                                       useragent=current_useragent,
+                                                                       key_antes_do_cat=secondary_panda_token,
+                                                                       useragent_codificado=encoded_user_agent)
+            if raccoon_token is None:
+                self._bad_data_to_export.append({
                     'panda_voter': str(current_panda_parameter['panda_type']),
-                    'possivel_item': str(possivel_string_encotrada),
+                    'possivel_item': str(secondary_panda_type),
                     'user_agent': str(current_useragent),
                     'os': str(operating_system),
-                    'raccoon': str(definitive_raccoon),
-                    'rats': str(rats),
-                    'cookie_final': str(cookie_to_final)
+                    'raccoon': str(raccoon_token),
+                    'rats': str(rats_token),
+                    'cookie_final': str(step_3_cookies)
                 })
 
                 return False
             else:
-                print('\n\n\n')
-                success_request, response_string = self.voting_system_request(session_cookie=cookie_to_final,
+                success_request, response_string = self.voting_system_request(session_cookie=step_3_cookies,
                                                                               trial_key=panda_key,
                                                                               current_panda_key=current_panda_parameter[
                                                                                   'panda_type'],
                                                                               current_useragent=current_useragent,
-                                                                              definitive_raccoon=definitive_raccoon,
-                                                                              rats=rats)
+                                                                              definitive_raccoon=raccoon_token,
+                                                                              rats=rats_token)
 
                 if success_request:
 
-                    self._sucessfull_data.append({
+                    self._successful_data_to_export.append({
                         'panda_voter': str(current_panda_parameter['panda_type']),
-                        'possivel_item': str(possivel_string_encotrada),
+                        'possivel_item': str(secondary_panda_type),
                         'user_agent': str(current_useragent),
                         'os': str(operating_system),
-                        'raccoon': str(definitive_raccoon),
-                        'rats': str(rats),
-                        'cookie_final': str(cookie_to_final)
+                        'raccoon': str(raccoon_token),
+                        'rats': str(rats_token),
+                        'cookie_final': str(step_3_cookies)
                     })
                     return True
                 else:
-                    self._bad_data.append({
+                    self._bad_data_to_export.append({
                         'panda_voter': str(current_panda_parameter['panda_type']),
-                        'possivel_item': str(possivel_string_encotrada),
+                        'possivel_item': str(secondary_panda_type),
                         'user_agent': str(current_useragent),
                         'os': str(operating_system),
-                        'raccoon': str(definitive_raccoon),
-                        'rats': str(rats),
-                        'cookie_final': str(cookie_to_final)
+                        'raccoon': str(raccoon_token),
+                        'rats': str(rats_token),
+                        'cookie_final': str(step_3_cookies)
                     })
                     return False
-
-
         except:
-            self._bad_data.append({
+            self._bad_data_to_export.append({
                 'panda_voter': str(current_panda_parameter['panda_type']),
-                'possivel_item': str(possivel_string_encotrada),
+                'possivel_item': str(secondary_panda_type),
                 'user_agent': str(current_useragent),
                 'os': str(operating_system),
-                'raccoon': str(definitive_raccoon),
-                'rats': str(rats),
-                'cookie_final': str(cookie_to_final)
+                'raccoon': str(raccoon_token),
+                'rats': str(rats_token),
+                'cookie_final': str(step_3_cookies)
             })
 
             return False
+
+    def step_1_first_request_website(self, current_useragent, panda_key):
+        headers = {
+            'User-Agent': current_useragent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            # 'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+        }
+
+        params = {
+            'trial_key': panda_key,
+        }
+
+        response = requests.get('https://panda.belvo.io/', params=params, headers=headers)
+
+        return response.cookies.get_dict(), response.text
 
     def get_component_for_raccoon(self, session_cookie, useragent, current_voter):
 
