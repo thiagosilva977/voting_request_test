@@ -100,15 +100,23 @@ All we need in this request is getting **succeed_request** and **response_from_r
 
 ## Feedback and Annotations
 
+### Feedback
+This was one of the most interesting test-project that I've done.
+This test can be simple and complex at the same time, and I love it! 
+
+Resillience is the right answer to solve this test. It took me about five to six hours to discover how the website works and all variables needed to succeed with each request. During the process I tried a lot of techiniques to do requests, decode and encode variables and more. This was the main reason that caused some disorganization with code and that I've spent soo much time refactoring and cleaning the code.
+
+I would like to congratulate all the people who developed this test.
+
+```#PandasShouldLive```
+
 ### Time tracker
 ![image](https://user-images.githubusercontent.com/11250089/219534814-a4c72c20-0e88-4575-b57b-41d6793d4df3.png)
 
-
-### Feedback
 
 ### Future improvements
 - Better detailed code and repository documentation
 - Better logs
 - More precision of data collected
-- Less nubmer of  necessary requests to getting a single vote
+- Reduce the number of necessary requests to getting a single vote
 - Find the pattern between **panda_type** and **secondary_panda_type**
