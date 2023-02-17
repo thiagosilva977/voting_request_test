@@ -67,8 +67,10 @@ The most important variables:
 - **raccoon_token**: Necessary UUI token to post a valid vote. Like: ```feb5487a-0357-43e6-bbbe-1c08b7cc5957```.
 
 ### Step 1 - Initial request
-The first step is making a request to ```https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI```. 
+The first step is making a request to ```https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI```, using **current_useragent** and **panda_key** to succeed the request.
 
-All we need in this request is getting **aaa**
+All we need in this request is getting **first_step_cookies** to use in future requests and **first_step_html** wich have important values to use in future steps. 
+
+We can also collect **secondary_panda_type** and **secondary_panda_token** to generate the **encoded_user_agent** variable.
 
 
