@@ -38,7 +38,7 @@ voting tokens that are unique to each memberof the GBC (they were secretly stole
 ## Docker Image
 
 ### Creating docker image and pushing to registry
-I use a makefile to make this process more quickier. 
+I use a makefile to make this process more quickly. 
 
 - Use the command ```make_setup``` to setup the project and install all requirements.
 - Use the command ```make_unsetup``` to unsetup the project and uninstall all requirements.
