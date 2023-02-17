@@ -49,5 +49,26 @@ You can use ``` --pandas-should-live = Bool``` to decide if pandas should live o
 ```docker run thiago977/election_pandas_future start-elections --pandas-should-live=False```
 
 ## How I solved this challenge
+The voting system is divided in four steps. 
+
+The most important variables: 
+- **panda_key**: Basically the token for this trial ( ```https://panda.belvo.io/?trial_key=<ID>``` ).
+- **panda_type**: It's the panda token like ```bearfoot_bearitone```.
+- **op_sys**: Each panda_type (or panda token) has your unique operating system.
+- **current_useragent**: Randomic User-Agent for requests.
+- **first_step_cookies**: First collected cookie from request.
+- **first_step_html**: First HTML collected in the first request.
+- **secondary_panda_type**: Secondary variable that I named secondary_panda_type. Is basically ```['bearwitness', 'beararms', 'beargarden',
+                                 'bearfruit', 'osopanda', 'papabear', 'pandosobearinmind', 'bearmarket',
+                                 'mamabear', 'tedybear']```
+- **secondary_panda_token**: 
+- **encoded_user_agent**: 
+- **rats_token**: 
+- **raccoon_token**: 
+
+### Step 1 - Initial request
+The first step is making a request to ```https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI```. 
+
+All we need in this request is getting **aaa**
 
 
