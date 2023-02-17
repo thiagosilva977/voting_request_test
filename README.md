@@ -73,7 +73,7 @@ The most important variables:
 - **encoded_user_agent**: Encoded user agent with the following format: **base64(user-agent + secondary_panda_type + op_sys)**
 - **rats_token**: Base64 string following format: **base64(  secondary_panda_type letters replaced by corresponding dictionary values: "{'_': 341, 'a': 332, 'b': 335, ...}" and "|" between letter numbers ) "** like: ```16540|16536|16537|16549|16551|16539|16535|16546|16540|16536|16537|16549|16545|16534``` 
 - **step_3_cookies**: Cookies generated in ```daxiongmao.js``` request.
-- **raccoon_token**: Necessary UUI token to post a valid vote. Like: ```feb5487a-0357-43e6-bbbe-1c08b7cc5957```.
+- **raccoon_token**: Necessary UUID token to post a valid vote. Like: ```feb5487a-0357-43e6-bbbe-1c08b7cc5957```.
 
 ### Step 1 - Initial request
 The first step is making a request to ```https://panda.belvo.io/?trial_key=A3F3D333452DF83D32A387F3FC3-THSI```, using **current_useragent** and **panda_key** to succeed the request.
