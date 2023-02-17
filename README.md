@@ -23,6 +23,7 @@
 
 [How I solved this challenge](#how-i-solved-this-challenge)
 
+[Feedback and annotations](#feedback-and-annotations)
 
 ## Project Description
 
@@ -97,5 +98,17 @@ The fourth step is making a request to ```https://panda.belvo.io/ursidaecarinove
 
 All we need in this request is getting **succeed_request** and **response_from_request** to just get the validation that the vote was registred.
 
+## Feedback and Annotations
+
+### Time tracker
+![image](https://user-images.githubusercontent.com/11250089/219534814-a4c72c20-0e88-4575-b57b-41d6793d4df3.png)
 
 
+### Feedback
+
+### Future improvements
+- Better detailed code and repository documentation
+- Better logs
+- More precision of data collected
+- Less nubmer of  necessary requests to getting a single vote
+- Find the pattern between **panda_type** and **secondary_panda_type**
