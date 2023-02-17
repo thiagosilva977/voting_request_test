@@ -64,6 +64,7 @@ The most important variables:
 - **secondary_panda_token**: Token collected in hidden form named ```carnivoreatingbambu```. 
 - **encoded_user_agent**: Encoded user agent with the following format: **base64(user-agent + secondary_panda_type + op_sys)**
 - **rats_token**: Base64 string following format: **base64(  secondary_panda_type letters replaced by corresponding dictionary values: "{'_': 341, 'a': 332, 'b': 335, ...}" and "|" between letter numbers ) "** like: ```16540|16536|16537|16549|16551|16539|16535|16546|16540|16536|16537|16549|16545|16534``` 
+- **step_3_cookies**: Cookies generated in ```daxiongmao.js``` request.
 - **raccoon_token**: Necessary UUI token to post a valid vote. Like: ```feb5487a-0357-43e6-bbbe-1c08b7cc5957```.
 
 ### Step 1 - Initial request
@@ -72,5 +73,29 @@ The first step is making a request to ```https://panda.belvo.io/?trial_key=A3F3D
 All we need in this request is getting **first_step_cookies** to use in future requests and **first_step_html** wich have important values to use in future steps. 
 
 We can also collect **secondary_panda_type** and **secondary_panda_token** to generate the **encoded_user_agent** variable.
+
+
+### Step 2 - Request to hastorni.js
+
+The second step is making a request to ```	https://panda.belvo.io/hastorni.js```, using **session_cookie**, **useragent**, **panda_type** and **panda_key** to succeed the request.
+
+All we need in this request is getting **rats_token** to use in step 3 and 4.
+
+### Step 3 - Request to daxiongmao.js
+
+The third step is making a request to ```https://panda.belvo.io/daxiongmao.js```, using  **session_cookie**, **useragent**, **secondary_panda_token**, **encoded_useragent** and **panda_key** to succeed the request.
+
+All we need in this request is getting **raccoon_token** and **step_3_cookies** to use in the voting request.
+
+We can also collect **secondary_panda_type** and **secondary_panda_token** to generate the **encoded_user_agent** variable.
+
+### Step 4 - Finally the voting request
+
+This is the most important part. We will decide the future of pandas. We already know that they are causing some troubles(like sleeping too much), and it's time to decide if they will live forever or sleep eternally.
+
+The fourth step is making a request to ```https://panda.belvo.io/ursidaecarinove_eating_bambu_must_die```, using  **step_3_cookies**, **useragent**, **secondary_panda_name**, **raccoons_token** , **rats_token** and **panda_token** to succeed the request.
+
+All we need in this request is getting **succeed_request** and **response_from_request** to just get the validation that the vote was registred.
+
 
 
