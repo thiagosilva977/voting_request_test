@@ -37,6 +37,13 @@ voting tokens that are unique to each memberof the GBC (they were secretly stole
 
 ## Docker Image
 
+### Creating docker image and pushing to registry
+I use a makefile to make this process more quickier. 
+
+- Use the command ```make_setup``` to setup the project and install all requirements.
+- Use the command ```make_unsetup``` to unsetup the project and uninstall all requirements.
+- Use the command ```make_do_all``` to create and push the docker image to docker registry.
+
 ### Pull Image
 ```docker pull thiago977/election_pandas_future:latest```
 
@@ -120,3 +127,10 @@ I would like to congratulate all the people who developed this test.
 - More precision of data collected
 - Reduce the number of necessary requests to getting a single vote
 - Find the pattern between **panda_type** and **secondary_panda_type**
+
+
+### Result files
+- [Logs for voting to pandas live](https://github.com/thiagosilva977/belvo_test_docker/blob/master/belvo_test/assets/example_successful_run.log)
+- [Logs for voting to pandas die](https://github.com/thiagosilva977/belvo_test_docker/blob/master/belvo_test/assets/pandas_should_die.log)
+- [Some informations for success voting](https://github.com/thiagosilva977/belvo_test_docker/blob/master/belvo_test/assets/success_data.xlsx)
+- [Time tracker for this project](https://github.com/thiagosilva977/belvo_test_docker/blob/master/belvo_test/assets/clockfy_time_tracker_for_belvo.pdf)
