@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h3 align="center">Belvo Test: Future of Pandas </h3>
+  <h3 align="center">Voting System Test</h3>
 
   <p align="center">
     Belvo Web-scraping trial.
