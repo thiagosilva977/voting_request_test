@@ -4,11 +4,11 @@
   <h3 align="center">Voting System Test</h3>
 
   <p align="center">
-    Belvo Web-scraping trial.
+    Program that tries to vote in a test website.
     <br />
-    <a href="https://github.com/thiagosilva977/belvo_test_docker/issues">Report Bug</a>
+    <a href="https://github.com/thiagosilva977/voting_request_test/issues">Report Bug</a>
     ·
-    <a href="https://github.com/thiagosilva977/belvo_test_docker/pulls">Request Feature</a>
+    <a href="https://github.com/thiagosilva977/voting_request_test/pulls">Request Feature</a>
   </p>
 </div>
 
@@ -130,7 +130,7 @@ I would like to congratulate all the people who developed this test.
 
 
 ### Result files
-- [Logs for voting to pandas live](https://github.com/thiagosilva977/belvo_test_docker/blob/master/belvo_test/assets/example_successful_run.log)
-- [Logs for voting to pandas die](https://github.com/thiagosilva977/belvo_test_docker/blob/master/belvo_test/assets/pandas_should_die.log)
-- [Some informations for success voting](https://github.com/thiagosilva977/belvo_test_docker/blob/master/belvo_test/assets/success_data.xlsx)
-- [Time tracker for this project](https://github.com/thiagosilva977/belvo_test_docker/blob/master/belvo_test/assets/clockfy_time_tracker_for_belvo.pdf)
+- [Logs for voting to pandas live](https://github.com/thiagosilva977/voting_request_test/blob/master/belvo_test/assets/example_successful_run.log)
+- [Logs for voting to pandas die](https://github.com/thiagosilva977/voting_request_test/blob/master/belvo_test/assets/pandas_should_die.log)
+- [Some informations for success voting](https://github.com/thiagosilva977/voting_request_test/blob/master/belvo_test/assets/success_data.xlsx)
+- [Time tracker for this project](https://github.com/thiagosilva977/voting_request_test/blob/master/belvo_test/assets/clockfy_time_tracker_for_belvo.pdf)
