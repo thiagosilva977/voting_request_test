@@ -1,6 +1,6 @@
 import click
 
-from belvo_test.source.panda_voting import VotingPandas
+from elections_test.source.panda_voting import VotingPandas
 
 
 @click.command("start-elections")

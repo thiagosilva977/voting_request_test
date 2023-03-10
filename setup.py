@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='belvo_test',
+    name='elections_test',
     version='1.0.2',
     packages=find_packages(),
     url='',
@@ -25,7 +25,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            "start-elections=belvo_test.main:main"
+            "start-elections=elections_test.main:main"
         ]
     }
 
